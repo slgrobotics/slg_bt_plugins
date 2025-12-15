@@ -1,0 +1,10 @@
+<library path="slg_bt_plugins">
+  <class
+    name="slg_bt_plugins::IsStopGesture"
+    type="slg_bt_plugins::IsStopGesture"
+    base_class_type="BT::ConditionNode">
+    <description>
+      Returns SUCCESS if /bt/gesture_command == "STOP"
+    </description>
+  </class>
+</library>
