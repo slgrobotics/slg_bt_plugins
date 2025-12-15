@@ -7,4 +7,20 @@
       Returns SUCCESS if /bt/gesture_command == "STOP"
     </description>
   </class>
+  <class
+    name="slg_bt_plugins::IsFaceDetected"
+    type="slg_bt_plugins::IsFaceDetected"
+    base_class_type="BT::ConditionNode">
+    <description>
+      Returns SUCCESS if face is detected
+    </description>
+  </class>
+  <class
+    name="slg_bt_plugins::TurnTowardFace"
+    type="slg_bt_plugins::TurnTowardFace"
+    base_class_type="BT::ActionNode">
+    <description>
+      Commands the robot to rotate toward the detected face
+    </description>
+  </class>
 </library>

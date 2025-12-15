@@ -6,6 +6,8 @@
   <maintainer email="slg@quakemap.com">Sergei Grichine</maintainer>
   <license>Apache-2.0</license>
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>behaviortree_cpp</depend>
+  <depend>geometry_msgs</depend>
   <depend>nav2_behavior_tree</depend>
   <depend>pluginlib</depend>
   <depend>rclcpp</depend>
