@@ -57,6 +57,8 @@ BT::NodeStatus TurnTowardFace::onRunning()
   // Aligned → stop
   if (std::abs(angle_error) < angle_tolerance) {
     geometry_msgs::msg::TwistStamped stop;
+    stop.header.stamp = node_->now();
+    stop.header.frame_id = "base_link";
     cmd_vel_pub_->publish(stop);
     return BT::NodeStatus::SUCCESS;
   }
@@ -68,7 +70,9 @@ BT::NodeStatus TurnTowardFace::onRunning()
   );
 
   geometry_msgs::msg::TwistStamped twist;
-  twist.angular.z = turn_rate;
+  twist.header.stamp = node_->now();
+  twist.header.frame_id = "base_link";
+  twist.twist.angular.z = turn_rate;
   cmd_vel_pub_->publish(twist);
 
   return BT::NodeStatus::RUNNING;
@@ -77,6 +81,8 @@ BT::NodeStatus TurnTowardFace::onRunning()
 void TurnTowardFace::onHalted()
 {
   geometry_msgs::msg::TwistStamped stop;
+  stop.header.stamp = node_->now();
+  stop.header.frame_id = "base_link";
   cmd_vel_pub_->publish(stop);
 }
 
