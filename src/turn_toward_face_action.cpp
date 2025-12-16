@@ -4,8 +4,9 @@
 namespace slg_bt_plugins
 {
 
-TurnTowardFace::TurnTowardFace(const std::string & name,
-                const BT::NodeConfiguration & config)
+TurnTowardFace::TurnTowardFace(
+  const std::string & name,
+  const BT::NodeConfiguration & config)
 : BT::StatefulActionNode(name, config)
 {
   // Retrieve Nav2 node from blackboard
@@ -14,7 +15,8 @@ TurnTowardFace::TurnTowardFace(const std::string & name,
   }
 
   cmd_vel_pub_ =
-    node_->create_publisher<geometry_msgs::msg::TwistStamped>("/cmd_vel", 10);
+    node_->create_publisher<geometry_msgs::msg::TwistStamped>(
+      "/cmd_vel", rclcpp::QoS(10));
 }
 
 BT::PortsList TurnTowardFace::providedPorts()
@@ -54,27 +56,23 @@ BT::NodeStatus TurnTowardFace::onRunning()
     return BT::NodeStatus::FAILURE;
   }
 
-  // Aligned → stop
+  geometry_msgs::msg::TwistStamped cmd;
+  cmd.header.stamp = node_->now();
+  cmd.header.frame_id = "base_link";
+
+  // Aligned → stop and finish
   if (std::abs(angle_error) < angle_tolerance) {
-    geometry_msgs::msg::TwistStamped stop;
-    stop.header.stamp = node_->now();
-    stop.header.frame_id = "base_link";
-    cmd_vel_pub_->publish(stop);
+    cmd_vel_pub_->publish(cmd);
     return BT::NodeStatus::SUCCESS;
   }
 
   // Turn toward face
-  double turn_rate = std::copysign(
+  cmd.twist.angular.z = std::copysign(
     std::min(max_turn_rate, std::abs(angle_error)),
     angle_error
   );
 
-  geometry_msgs::msg::TwistStamped twist;
-  twist.header.stamp = node_->now();
-  twist.header.frame_id = "base_link";
-  twist.twist.angular.z = turn_rate;
-  cmd_vel_pub_->publish(twist);
-
+  cmd_vel_pub_->publish(cmd);
   return BT::NodeStatus::RUNNING;
 }
 
@@ -83,6 +81,7 @@ void TurnTowardFace::onHalted()
   geometry_msgs::msg::TwistStamped stop;
   stop.header.stamp = node_->now();
   stop.header.frame_id = "base_link";
+
   cmd_vel_pub_->publish(stop);
 }
 
