@@ -9,6 +9,8 @@ TurnTowardFace::TurnTowardFace(
   const BT::NodeConfiguration & config)
 : BT::StatefulActionNode(name, config)
 {
+  RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] constructor");
+
   if (!config.blackboard->get("node", node_)) {
     throw std::runtime_error(
       "TurnTowardFace: missing 'node' on blackboard");
