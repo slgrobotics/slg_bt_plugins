@@ -1,5 +1,4 @@
 #include "slg_bt_plugins/is_stop_gesture_condition.hpp"
-#include <behaviortree_cpp/bt_factory.h>
 
 namespace slg_bt_plugins
 {
@@ -35,7 +34,3 @@ void IsStopGesture::gestureCallback(const std_msgs::msg::String::SharedPtr msg)
 
 }  // namespace slg_bt_plugins
 
-BT_REGISTER_NODES(factory)
-{
-  factory.registerNodeType<slg_bt_plugins::IsStopGesture>("IsStopGesture");
-}

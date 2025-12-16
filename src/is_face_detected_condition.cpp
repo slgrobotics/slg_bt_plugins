@@ -1,5 +1,4 @@
 #include "slg_bt_plugins/is_face_detected_condition.hpp"
-#include <behaviortree_cpp/bt_factory.h>
 
 namespace slg_bt_plugins
 {
@@ -35,7 +34,3 @@ void IsFaceDetected::faceDetectedCallback(const std_msgs::msg::Bool::SharedPtr m
 
 }  // namespace slg_bt_plugins
 
-BT_REGISTER_NODES(factory)
-{
-  factory.registerNodeType<slg_bt_plugins::IsFaceDetected>("IsFaceDetected");
-}

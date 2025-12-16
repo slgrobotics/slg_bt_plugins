@@ -1,5 +1,4 @@
 #include "slg_bt_plugins/turn_toward_face_action.hpp"
-#include <behaviortree_cpp/bt_factory.h>
 #include <cmath>
 
 namespace slg_bt_plugins
@@ -82,8 +81,3 @@ void TurnTowardFace::onHalted()
 }
 
 }  // namespace slg_bt_plugins
-
-BT_REGISTER_NODES(factory)
-{
-  factory.registerNodeType<slg_bt_plugins::TurnTowardFace>("TurnTowardFace");
-}
