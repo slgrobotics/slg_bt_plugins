@@ -9,14 +9,14 @@ TurnTowardFace::TurnTowardFace(
   const BT::NodeConfiguration & config)
 : BT::StatefulActionNode(name, config)
 {
-  // Retrieve Nav2 node from blackboard
   if (!config.blackboard->get("node", node_)) {
-    throw std::runtime_error("TurnTowardFace: missing 'node' on blackboard");
+    throw std::runtime_error(
+      "TurnTowardFace: missing 'node' on blackboard");
   }
 
   cmd_vel_pub_ =
     node_->create_publisher<geometry_msgs::msg::TwistStamped>(
-      "/cmd_vel", rclcpp::QoS(10));
+      "/cmd_vel", rclcpp::SystemDefaultsQoS());
 }
 
 BT::PortsList TurnTowardFace::providedPorts()
@@ -36,6 +36,7 @@ BT::PortsList TurnTowardFace::providedPorts()
 
 BT::NodeStatus TurnTowardFace::onStart()
 {
+  RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] onStart()");
   return BT::NodeStatus::RUNNING;
 }
 
@@ -44,6 +45,8 @@ BT::NodeStatus TurnTowardFace::onRunning()
   std::string angle_key;
   double angle_tolerance;
   double max_turn_rate;
+
+  RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] onRunning()");
 
   if (!getInput("angle_key", angle_key) ||
       !getInput("angle_tolerance", angle_tolerance) ||
@@ -60,17 +63,18 @@ BT::NodeStatus TurnTowardFace::onRunning()
   cmd.header.stamp = node_->now();
   cmd.header.frame_id = "base_link";
 
-  // Aligned → stop and finish
+  // Aligned → stop turning
   if (std::abs(angle_error) < angle_tolerance) {
     cmd_vel_pub_->publish(cmd);
     return BT::NodeStatus::SUCCESS;
   }
 
+  RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] angle_error: %.3f   tolerance: %.3f", angle_error, angle_tolerance);
+
   // Turn toward face
   cmd.twist.angular.z = std::copysign(
     std::min(max_turn_rate, std::abs(angle_error)),
-    angle_error
-  );
+    angle_error);
 
   cmd_vel_pub_->publish(cmd);
   return BT::NodeStatus::RUNNING;
@@ -83,6 +87,8 @@ void TurnTowardFace::onHalted()
   stop.header.frame_id = "base_link";
 
   cmd_vel_pub_->publish(stop);
+
+  RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] onHalted() — stopping rotation");
 }
 
 }  // namespace slg_bt_plugins

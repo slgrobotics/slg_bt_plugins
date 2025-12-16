@@ -1,5 +1,4 @@
-#ifndef SLG_BT_PLUGINS__TURN_TOWARD_FACE_ACTION_HPP_
-#define SLG_BT_PLUGINS__TURN_TOWARD_FACE_ACTION_HPP_
+#pragma once
 
 #include "behaviortree_cpp/action_node.h"
 #include <rclcpp/rclcpp.hpp>
@@ -28,5 +27,3 @@ private:
 };
 
 }  // namespace slg_bt_plugins
-
-#endif  // SLG_BT_PLUGINS__TURN_TOWARD_FACE_ACTION_HPP_
