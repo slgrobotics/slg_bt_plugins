@@ -14,7 +14,7 @@ TurnTowardFace::TurnTowardFace(const std::string & name,
   }
 
   cmd_vel_pub_ =
-    node_->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 10);
+    node_->create_publisher<geometry_msgs::msg::TwistStamped>("/cmd_vel", 10);
 }
 
 BT::PortsList TurnTowardFace::providedPorts()
@@ -56,7 +56,7 @@ BT::NodeStatus TurnTowardFace::onRunning()
 
   // Aligned → stop
   if (std::abs(angle_error) < angle_tolerance) {
-    geometry_msgs::msg::Twist stop;
+    geometry_msgs::msg::TwistStamped stop;
     cmd_vel_pub_->publish(stop);
     return BT::NodeStatus::SUCCESS;
   }
@@ -67,7 +67,7 @@ BT::NodeStatus TurnTowardFace::onRunning()
     angle_error
   );
 
-  geometry_msgs::msg::Twist twist;
+  geometry_msgs::msg::TwistStamped twist;
   twist.angular.z = turn_rate;
   cmd_vel_pub_->publish(twist);
 
@@ -76,7 +76,7 @@ BT::NodeStatus TurnTowardFace::onRunning()
 
 void TurnTowardFace::onHalted()
 {
-  geometry_msgs::msg::Twist stop;
+  geometry_msgs::msg::TwistStamped stop;
   cmd_vel_pub_->publish(stop);
 }
 

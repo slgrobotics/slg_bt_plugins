@@ -3,7 +3,7 @@
 
 #include "behaviortree_cpp/action_node.h"
 #include <rclcpp/rclcpp.hpp>
-#include <geometry_msgs/msg/twist.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
 
 namespace slg_bt_plugins
 {
@@ -24,7 +24,7 @@ public:
 
 private:
   rclcpp::Node::SharedPtr node_;
-  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_pub_;
+  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr cmd_vel_pub_;
 };
 
 }  // namespace slg_bt_plugins
