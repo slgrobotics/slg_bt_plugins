@@ -9,6 +9,8 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 
+include_directories(include)
+
 add_library(slg_bt_plugins SHARED
   src/is_stop_gesture_condition.cpp
   src/is_face_detected_condition.cpp
@@ -40,8 +42,17 @@ install(TARGETS slg_bt_plugins
   LIBRARY DESTINATION lib
 )
 
-install(DIRECTORY include/
-  DESTINATION include
+install(FILES plugin_description.xml
+  DESTINATION share/${PROJECT_NAME}
+)
+
+install(DIRECTORY include
+  DESTINATION share/${PROJECT_NAME}
+)
+
+ament_export_libraries(
+  slg_bt_plugins
+  slg_bt_plugins
 )
 
 ament_package()
