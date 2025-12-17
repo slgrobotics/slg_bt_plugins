@@ -16,6 +16,12 @@ TurnTowardFace::TurnTowardFace(
       "TurnTowardFace: missing 'node' on blackboard");
   }
 
+  yaw_error_sub_ = node_->create_subscription<std_msgs::msg::Float32>(
+    "/bt/face_yaw_error", 10,
+    [this](std_msgs::msg::Float32::SharedPtr msg) {
+        face_yaw_error_ = msg->data;
+    });
+
   cmd_vel_pub_ =
     node_->create_publisher<geometry_msgs::msg::TwistStamped>(
       "/cmd_vel", rclcpp::SystemDefaultsQoS());
@@ -23,10 +29,8 @@ TurnTowardFace::TurnTowardFace(
 
 BT::PortsList TurnTowardFace::providedPorts()
 {
+  // we use ports just for parameters, not live data
   return {
-    BT::InputPort<std::string>(
-      "angle_key", "face_yaw_error",
-      "Blackboard key containing yaw error (radians)"),
     BT::InputPort<double>(
       "angle_tolerance", 0.1,
       "Acceptable yaw error (radians)"),
@@ -50,15 +54,11 @@ BT::NodeStatus TurnTowardFace::onRunning()
 
   RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] onRunning()");
 
-  if (!getInput("angle_key", angle_key) ||
-      !getInput("angle_tolerance", angle_tolerance) ||
+  if (!getInput("angle_tolerance", angle_tolerance) ||
       !getInput("max_turn_rate", max_turn_rate)) {
-    return BT::NodeStatus::FAILURE;
-  }
 
-  double angle_error;
-  if (!config().blackboard->get(angle_key, angle_error)) {
-    return BT::NodeStatus::FAILURE;
+      RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] onRunning() - missing input parameters");
+      return BT::NodeStatus::FAILURE;
   }
 
   geometry_msgs::msg::TwistStamped cmd;
@@ -66,17 +66,18 @@ BT::NodeStatus TurnTowardFace::onRunning()
   cmd.header.frame_id = "base_link";
 
   // Aligned → stop turning
-  if (std::abs(angle_error) < angle_tolerance) {
+  if (std::abs(face_yaw_error_) < angle_tolerance) {
     cmd_vel_pub_->publish(cmd);
+    RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] face_yaw_error: %.3f  - rotation completed", face_yaw_error_);
     return BT::NodeStatus::SUCCESS;
   }
 
-  RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] angle_error: %.3f   tolerance: %.3f", angle_error, angle_tolerance);
+  RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] - rotating, face_yaw_error: %.3f   tolerance: %.3f", face_yaw_error_, angle_tolerance);
 
   // Turn toward face
   cmd.twist.angular.z = std::copysign(
-    std::min(max_turn_rate, std::abs(angle_error)),
-    angle_error);
+    std::min(max_turn_rate, std::abs(face_yaw_error_)),
+    face_yaw_error_);
 
   cmd_vel_pub_->publish(cmd);
   return BT::NodeStatus::RUNNING;

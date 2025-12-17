@@ -13,16 +13,14 @@ public:
   IsFaceDetected(const std::string & name,
                 const BT::NodeConfiguration & config);
 
-  static BT::PortsList providedPorts();
+  static BT::PortsList providedPorts() { return {}; };
 
   BT::NodeStatus tick() override;
 
 private:
-  void faceDetectedCallback(const std_msgs::msg::Bool::SharedPtr msg);
-
   rclcpp::Node::SharedPtr node_;
   rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sub_;
-  bool face_detected_;
+  std::atomic_bool face_detected_{false};
 };
 
 }  // namespace slg_bt_plugins

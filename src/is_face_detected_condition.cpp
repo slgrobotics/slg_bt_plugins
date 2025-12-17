@@ -5,38 +5,26 @@ namespace slg_bt_plugins
 
 IsFaceDetected::IsFaceDetected(const std::string & name,
                 const BT::NodeConfiguration & config)
-: BT::ConditionNode(name, config), face_detected_(false)
+: BT::ConditionNode(name, config)
 {
   RCLCPP_INFO(node_->get_logger(), "[IsFaceDetected] constructor");
 
   node_ = config.blackboard->get<rclcpp::Node::SharedPtr>("node");
 
   sub_ = node_->create_subscription<std_msgs::msg::Bool>(
-    "/face_detected", 10,
-    std::bind(&IsFaceDetected::faceDetectedCallback, this, std::placeholders::_1));
-}
-
-BT::PortsList IsFaceDetected::providedPorts()
-{
-  return {};
+    "/bt/face_detected", 10,
+    [this](std_msgs::msg::Bool::SharedPtr msg) {
+        face_detected_ = msg->data;
+    });
 }
 
 BT::NodeStatus IsFaceDetected::tick()
 {
-  RCLCPP_INFO(node_->get_logger(), "[IsFaceDetected] tick()");
+  RCLCPP_INFO(node_->get_logger(), "[IsFaceDetected] tick()  face_detected: %s", face_detected_ ? "true" : "false");
 
-  if (face_detected_) {
-    return BT::NodeStatus::SUCCESS;
-  }
-
-  return BT::NodeStatus::FAILURE;
-}
-
-void IsFaceDetected::faceDetectedCallback(const std_msgs::msg::Bool::SharedPtr msg)
-{
-  RCLCPP_INFO(node_->get_logger(), "[IsFaceDetected] faceDetectedCallback() received: %s", msg->data ? "true" : "false");
-
-  face_detected_ = msg->data;
+  return face_detected_
+      ? BT::NodeStatus::SUCCESS
+      : BT::NodeStatus::FAILURE;
 }
 
 }  // namespace slg_bt_plugins
