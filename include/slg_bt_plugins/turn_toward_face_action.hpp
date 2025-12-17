@@ -24,7 +24,7 @@ private:
   rclcpp::Node::SharedPtr node_;
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr cmd_vel_pub_;
   rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr yaw_error_sub_;
-  double face_yaw_error_{0.0};
+  std::atomic<double> face_yaw_error_{0.0};
 };
 
 }  // namespace slg_bt_plugins

@@ -20,7 +20,7 @@ public:
 private:
   rclcpp::Node::SharedPtr node_;
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr sub_;
-  std::string last_gesture_{""};
+  std::string last_gesture_{""}; // string cannot be atomic
 };
 
 }  // namespace slg_bt_plugins

@@ -65,19 +65,21 @@ BT::NodeStatus TurnTowardFace::onRunning()
   cmd.header.stamp = node_->now();
   cmd.header.frame_id = "base_link";
 
+  double err_angle = face_yaw_error_; // consume atomic value
+
   // Aligned → stop turning
-  if (std::abs(face_yaw_error_) < angle_tolerance) {
+  if (std::abs(err_angle) < angle_tolerance) {
     cmd_vel_pub_->publish(cmd);
-    RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] face_yaw_error: %.3f  - rotation completed", face_yaw_error_);
+    RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] face_yaw_error: %.3f  - rotation completed", err_angle);
     return BT::NodeStatus::SUCCESS;
   }
 
-  RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] - rotating, face_yaw_error: %.3f   tolerance: %.3f", face_yaw_error_, angle_tolerance);
+  RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] - rotating, face_yaw_error: %.3f   tolerance: %.3f", err_angle, angle_tolerance);
 
   // Turn toward face
   cmd.twist.angular.z = std::copysign(
-    std::min(max_turn_rate, std::abs(face_yaw_error_)),
-    face_yaw_error_);
+    std::min(max_turn_rate, std::abs(err_angle)),
+    err_angle);
 
   cmd_vel_pub_->publish(cmd);
   return BT::NodeStatus::RUNNING;
