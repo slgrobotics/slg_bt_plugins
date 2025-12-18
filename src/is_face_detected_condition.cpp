@@ -7,7 +7,10 @@ IsFaceDetected::IsFaceDetected(const std::string & name,
                 const BT::NodeConfiguration & config)
 : BT::ConditionNode(name, config)
 {
-  node_ = config.blackboard->get<rclcpp::Node::SharedPtr>("node");
+  if (!config.blackboard->get("node", node_)) {
+    throw std::runtime_error(
+      "IsFaceDetected: missing 'node' on blackboard");
+  }
 
   RCLCPP_INFO(node_->get_logger(), "[IsFaceDetected] constructor");
 
