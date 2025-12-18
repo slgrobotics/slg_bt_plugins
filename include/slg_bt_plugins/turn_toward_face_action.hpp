@@ -24,7 +24,13 @@ private:
   rclcpp::Node::SharedPtr node_;
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr cmd_vel_pub_;
   rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr yaw_error_sub_;
-  std::atomic<double> face_yaw_error_{0.0};
-};
 
-}  // namespace slg_bt_plugins
+  std::mutex mutex_;
+  double face_yaw_error_{0.0};
+
+  rclcpp::Time last_yaw_error_time_;
+  rclcpp::Duration yaw_error_timeout_{2, 0};  // 2 seconds expiration
+
+}; 
+
+} // namespace slg_bt_plugins

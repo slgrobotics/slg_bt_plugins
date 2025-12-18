@@ -23,30 +23,50 @@ IsStopGesture::IsStopGesture(const std::string & name,
             RCLCPP_WARN(node_->get_logger(), "[IsStopGesture] sub received gesture: '%s'", msg->data.c_str());
             std::lock_guard<std::mutex> lock(mutex_);
             last_gesture_ = msg->data;
+            last_gesture_time_ = node_->now();
         }
     );
 }
+
+// Nav2 ticks BTs at ~10–30 Hz.
 
 BT::NodeStatus IsStopGesture::tick()
 {
   // The subscription happens, but messages are queued until the node is spun.
   // So, we have to manually process any waiting messages for the BT node:
-  rclcpp::spin_some(node_->get_node_base_interface()); 
+  rclcpp::spin_some(node_->get_node_base_interface());  // executes any pending callbacks on that node
   
   std::string gesture;
+  rclcpp::Time stamp;
 
   {
     std::lock_guard<std::mutex> lock(mutex_);
     gesture = last_gesture_;
+    stamp = last_gesture_time_;
   }
 
-  bool ret = gesture == "STOP";
+  const auto now = node_->now();
+
+  // Expire gesture
+  if (stamp.nanoseconds() == 0 || (now - stamp) > gesture_timeout_)
+  {
+    RCLCPP_INFO(node_->get_logger(), "[IsStopGesture] gesture expired");
+
+    std::lock_guard<std::mutex> lock(mutex_);
+    last_gesture_.clear();
+    last_gesture_time_ = rclcpp::Time(0, 0, node_->get_clock()->get_clock_type());
+
+    return BT::NodeStatus::FAILURE;
+  }
+
+  const bool is_stop = (gesture == "STOP");
 
   if(gesture != "") {
-    RCLCPP_INFO(node_->get_logger(), "[IsStopGesture] tick() gesture: '%s' = %s", gesture.c_str(), ret ? "BT:SUCCESS" : "BT:FAILURE");
+    RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
+       "[IsStopGesture] tick() gesture: '%s' = %s", gesture.c_str(), is_stop ? "BT:SUCCESS" : "BT:FAILURE");
   }
 
-  return ret
+  return is_stop
       ? BT::NodeStatus::SUCCESS
       : BT::NodeStatus::FAILURE;
 }

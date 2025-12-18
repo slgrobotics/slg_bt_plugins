@@ -23,6 +23,9 @@ private:
 
   std::mutex mutex_;
   std::string last_gesture_{""}; // string cannot be atomic, but can be protected by mutex
+
+  rclcpp::Time last_gesture_time_;
+  rclcpp::Duration gesture_timeout_{2, 0};  // 2 seconds expiration
 };
 
 }  // namespace slg_bt_plugins
