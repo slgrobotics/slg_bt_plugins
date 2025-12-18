@@ -30,12 +30,6 @@ IsStopGesture::IsStopGesture(const std::string & name,
         },
         options
     );
-
-  sub_ = node_->create_subscription<std_msgs::msg::String>(
-    "/bt/gesture_command", 10,
-    [this](std_msgs::msg::String::SharedPtr msg) {
-        last_gesture_ = msg->data;
-    });
 }
 
 BT::NodeStatus IsStopGesture::tick()
