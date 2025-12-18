@@ -19,7 +19,6 @@ public:
 
 private:
   rclcpp::Node::SharedPtr node_;
-  rclcpp::CallbackGroup::SharedPtr callback_group_;
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr sub_;
 
   std::mutex mutex_;

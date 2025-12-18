@@ -14,11 +14,7 @@ IsStopGesture::IsStopGesture(const std::string & name,
 
   RCLCPP_INFO(node_->get_logger(), "[IsStopGesture] constructor");
 
-  // See https://chatgpt.com/s/t_69435fadacf88191989652b62658ac5d
-  callback_group_ = node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
-
-  rclcpp::SubscriptionOptions options;
-  options.callback_group = callback_group_;
+  // Note: the "Callback Group" solution didn't work for me as expected.
 
   sub_ = node_->create_subscription<std_msgs::msg::String>(
         "/bt/gesture_command",
@@ -27,13 +23,16 @@ IsStopGesture::IsStopGesture(const std::string & name,
             RCLCPP_WARN(node_->get_logger(), "[IsStopGesture] sub received gesture: '%s'", msg->data.c_str());
             std::lock_guard<std::mutex> lock(mutex_);
             last_gesture_ = msg->data;
-        },
-        options
+        }
     );
 }
 
 BT::NodeStatus IsStopGesture::tick()
 {
+  // The subscription happens, but messages are queued until the node is spun.
+  // So, we have to manually process any waiting messages for the BT node:
+  rclcpp::spin_some(node_->get_node_base_interface()); 
+  
   std::string gesture;
 
   {
@@ -43,7 +42,9 @@ BT::NodeStatus IsStopGesture::tick()
 
   bool ret = gesture == "STOP";
 
-  RCLCPP_INFO(node_->get_logger(), "[IsStopGesture] tick() gesture: '%s' = %s", gesture.c_str(), ret ? "BT:SUCCESS" : "BT:FAILURE");
+  if(gesture != "") {
+    RCLCPP_INFO(node_->get_logger(), "[IsStopGesture] tick() gesture: '%s' = %s", gesture.c_str(), ret ? "BT:SUCCESS" : "BT:FAILURE");
+  }
 
   return ret
       ? BT::NodeStatus::SUCCESS

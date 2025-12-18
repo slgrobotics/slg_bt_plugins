@@ -19,6 +19,7 @@ TurnTowardFace::TurnTowardFace(
   yaw_error_sub_ = node_->create_subscription<std_msgs::msg::Float32>(
     "/bt/face_yaw_error", 10,
     [this](std_msgs::msg::Float32::SharedPtr msg) {
+        RCLCPP_WARN(node_->get_logger(), "[TurnTowardFace] sub received face_yaw_error: '%.3f'", msg->data);
         face_yaw_error_ = msg->data;
     });
 
@@ -61,10 +62,15 @@ BT::NodeStatus TurnTowardFace::onRunning()
       return BT::NodeStatus::FAILURE;
   }
 
+  // Prepare command message to be published:
   geometry_msgs::msg::TwistStamped cmd;
   cmd.header.stamp = node_->now();
   cmd.header.frame_id = "base_link";
 
+  // The subscription happens, but messages are queued until the node is spun.
+  // So, we have to manually process any waiting messages for the BT node:
+  rclcpp::spin_some(node_->get_node_base_interface()); 
+  
   double err_angle = face_yaw_error_; // consume atomic value
 
   // Aligned → stop turning

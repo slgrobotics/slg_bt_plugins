@@ -17,12 +17,17 @@ IsFaceDetected::IsFaceDetected(const std::string & name,
   sub_ = node_->create_subscription<std_msgs::msg::Bool>(
     "/bt/face_detected", 10,
     [this](std_msgs::msg::Bool::SharedPtr msg) {
+        RCLCPP_WARN(node_->get_logger(), "[IsFaceDetected] sub received face_detected: '%s'", msg->data ? "true" : "false");
         face_detected_ = msg->data;
     });
 }
 
 BT::NodeStatus IsFaceDetected::tick()
 {
+  // The subscription happens, but messages are queued until the node is spun.
+  // So, we have to manually process any waiting messages for the BT node:
+  rclcpp::spin_some(node_->get_node_base_interface()); 
+  
   RCLCPP_INFO(node_->get_logger(), "[IsFaceDetected] tick()  face_detected: %s", face_detected_ ? "true" : "false");
 
   return face_detected_
