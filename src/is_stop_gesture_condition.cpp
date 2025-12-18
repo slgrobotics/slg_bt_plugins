@@ -20,6 +20,7 @@ IsStopGesture::IsStopGesture(const std::string & name,
         "/bt/gesture_command",
         rclcpp::QoS(1).best_effort(),
         [this](std_msgs::msg::String::SharedPtr msg) {
+            // when a gesture is detected, expect steady 2 Hz stream of messages
             RCLCPP_WARN(node_->get_logger(), "[IsStopGesture] sub received gesture: '%s'", msg->data.c_str());
             std::lock_guard<std::mutex> lock(mutex_);
             last_gesture_ = msg->data;
@@ -68,7 +69,7 @@ BT::NodeStatus IsStopGesture::tick()
         "[IsStopGesture] tick() gesture: '%s' = %s", gesture.c_str(), is_stop ? "BT:SUCCESS" : "BT:FAILURE");
     }
   } else {
-    RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,"[IsStopGesture] gesture expired - BT:FAILURE");
+    RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,"[IsStopGesture] tick()  gesture expired - BT:FAILURE");
   }
 
   /*
