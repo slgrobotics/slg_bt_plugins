@@ -22,13 +22,13 @@ add_library(slg_bt_plugins SHARED
 # see https://chatgpt.com/s/t_6941bc0282808191b0b911baf8efea69
 target_compile_definitions(slg_bt_plugins PRIVATE BT_PLUGIN_EXPORT)
 
-ament_target_dependencies(slg_bt_plugins
-  nav2_behavior_tree
-  behaviortree_cpp
-  pluginlib
-  rclcpp
-  std_msgs
-  geometry_msgs
+target_link_libraries(slg_bt_plugins PUBLIC
+  ${nav2_behavior_tree_TARGETS}
+  ${behaviortree_cpp_TARGETS}
+  ${pluginlib_TARGETS}
+  ${std_msgs_TARGETS}
+  ${geometry_msgs_TARGETS}
+  rclcpp::rclcpp
 )
 
 target_include_directories(slg_bt_plugins PUBLIC include)
