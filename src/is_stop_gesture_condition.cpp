@@ -23,7 +23,7 @@ IsStopGesture::IsStopGesture(const std::string & name,
 
 BT::NodeStatus IsStopGesture::tick()
 {
-  RCLCPP_INFO(node_->get_logger(), "[IsStopGesture] tick() last_gesture_: %s", last_gesture_.c_str());
+  RCLCPP_INFO(node_->get_logger(), "[IsStopGesture] tick() last_gesture_: '%s'", last_gesture_.c_str());
 
   return last_gesture_ == "STOP"
       ? BT::NodeStatus::SUCCESS
