@@ -19,8 +19,11 @@ public:
 
 private:
   rclcpp::Node::SharedPtr node_;
+  rclcpp::CallbackGroup::SharedPtr callback_group_;
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr sub_;
-  std::string last_gesture_{""}; // string cannot be atomic
+
+  std::mutex mutex_;
+  std::string last_gesture_{""}; // string cannot be atomic, but can be protected by mutex
 };
 
 }  // namespace slg_bt_plugins

@@ -14,6 +14,23 @@ IsStopGesture::IsStopGesture(const std::string & name,
 
   RCLCPP_INFO(node_->get_logger(), "[IsStopGesture] constructor");
 
+  // See https://chatgpt.com/s/t_69435fadacf88191989652b62658ac5d
+  callback_group_ = node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+
+  rclcpp::SubscriptionOptions options;
+  options.callback_group = callback_group_;
+
+  sub_ = node_->create_subscription<std_msgs::msg::String>(
+        "/bt/gesture_command",
+        rclcpp::QoS(1).best_effort(),
+        [this](std_msgs::msg::String::SharedPtr msg) {
+            RCLCPP_WARN(node_->get_logger(), "[IsStopGesture] sub received gesture: '%s'", msg->data.c_str());
+            std::lock_guard<std::mutex> lock(mutex_);
+            last_gesture_ = msg->data;
+        },
+        options
+    );
+
   sub_ = node_->create_subscription<std_msgs::msg::String>(
     "/bt/gesture_command", 10,
     [this](std_msgs::msg::String::SharedPtr msg) {
@@ -23,9 +40,16 @@ IsStopGesture::IsStopGesture(const std::string & name,
 
 BT::NodeStatus IsStopGesture::tick()
 {
-  bool ret = last_gesture_ == "STOP";
+  std::string gesture;
 
-  RCLCPP_INFO(node_->get_logger(), "[IsStopGesture] tick() last_gesture_: '%s' = %s", last_gesture_.c_str(), ret ? "BT:SUCCESS" : "BT:FAILURE");
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    gesture = last_gesture_;
+  }
+
+  bool ret = gesture == "STOP";
+
+  RCLCPP_INFO(node_->get_logger(), "[IsStopGesture] tick() gesture: '%s' = %s", gesture.c_str(), ret ? "BT:SUCCESS" : "BT:FAILURE");
 
   return ret
       ? BT::NodeStatus::SUCCESS
