@@ -39,32 +39,47 @@ BT::NodeStatus IsStopGesture::tick()
   std::string gesture;
   rclcpp::Time stamp;
 
+  bool expired = false;
+  bool is_stop = false;
+
   {
     std::lock_guard<std::mutex> lock(mutex_);
-    gesture = last_gesture_;
-    stamp = last_gesture_time_;
+
+    if (last_gesture_time_.nanoseconds() == 0 ||
+        (node_->now() - last_gesture_time_) > gesture_timeout_)
+    {
+        // Expire and clear gesture
+        last_gesture_.clear();
+        last_gesture_time_ = rclcpp::Time(0, 0, node_->get_clock()->get_clock_type());
+        expired = true;
+    }
+    else
+    {
+        gesture = last_gesture_;
+    }
   }
 
-  const auto now = node_->now();
+  if (!expired) {
 
-  // Expire gesture
-  if (stamp.nanoseconds() == 0 || (now - stamp) > gesture_timeout_)
-  {
-    RCLCPP_INFO(node_->get_logger(), "[IsStopGesture] gesture expired");
+    is_stop = (gesture == "STOP"); // gesture can be "STOP", "LIKE", "OK", "YES", "SIX" or empty string
 
-    std::lock_guard<std::mutex> lock(mutex_);
-    last_gesture_.clear();
-    last_gesture_time_ = rclcpp::Time(0, 0, node_->get_clock()->get_clock_type());
-
-    return BT::NodeStatus::FAILURE;
+    if(gesture != "") {
+        RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
+        "[IsStopGesture] tick() gesture: '%s' = %s", gesture.c_str(), is_stop ? "BT:SUCCESS" : "BT:FAILURE");
+    }
+  } else {
+    RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,"[IsStopGesture] gesture expired - BT:FAILURE");
   }
 
-  const bool is_stop = (gesture == "STOP");
+  /*
+   This node acts as a "preemption" trigger.
+    - Return SUCCESS when: A stop gesture is actively detected.
+      This will trigger the StopGestureSequence, causing CancelControl to run and stop the robot.
+    - Return FAILURE when: No stop gesture is seen, or if the data stream ceases (no message received).
 
-  if(gesture != "") {
-    RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
-       "[IsStopGesture] tick() gesture: '%s' = %s", gesture.c_str(), is_stop ? "BT:SUCCESS" : "BT:FAILURE");
-  }
+    Why: In a ReactiveFallback, returning FAILURE allows the tree to move on to the next priority (Face Detection or Navigation). 
+         If it returned SUCCESS during a data dropout, it would inadvertently trigger the stop command. 
+  */
 
   return is_stop
       ? BT::NodeStatus::SUCCESS

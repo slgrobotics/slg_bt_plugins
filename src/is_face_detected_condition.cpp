@@ -44,12 +44,25 @@ BT::NodeStatus IsFaceDetected::tick()
   // Expire face detection
   if (stamp.nanoseconds() == 0 || (now - stamp) > face_detected_timeout_)
   {
-    RCLCPP_INFO(node_->get_logger(), "[IsFaceDetected] face detection expired");
+    RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, "[IsFaceDetected] tick()  face detection expired - BT:FAILURE");
 
-    return BT::NodeStatus::FAILURE;
+    face_detected = false;
+  } else {
+    RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, "[IsFaceDetected] tick()  face_detected: %s", face_detected ? "BT:SUCCESS" : "BT:FAILURE");
   }
 
-  RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, "[IsFaceDetected] tick()  face_detected: %s", face_detected ? "true" : "false");
+  /*
+    This node guards the "Turn Toward Face" behavior.
+    - Return SUCCESS when: 
+        A face is currently detected in the data stream.
+        This allows the tree to enter the FaceDetectedSequence.
+    - Return FAILURE when:
+        No face is detected, or
+        if the face tracking stream stops.
+    - Why: If the stream ceases and you return SUCCESS,
+           the robot will try to run TurnTowardFace without valid data, likely leading to errors or jitter.
+           Returning FAILURE ensures the robot falls back to standard NavigateToPose.
+  */
 
   return face_detected
       ? BT::NodeStatus::SUCCESS

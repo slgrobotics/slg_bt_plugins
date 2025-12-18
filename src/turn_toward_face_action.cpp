@@ -49,6 +49,31 @@ BT::NodeStatus TurnTowardFace::onStart()
   return BT::NodeStatus::RUNNING;
 }
 
+/***
+ * 
+ * Since this is an asynchronous Action Node paired with a condition in a sequence,
+ *  its status controls how long the robot stays "locked" in the turning behavior.
+ * 
+ * Return RUNNING while:
+ *     The robot is actively rotating toward the person but has not yet reached the angle_tolerance.
+ * 
+ * Return SUCCESS when:
+ *     The robot has successfully aligned within the angle_tolerance.
+ * 
+ *   Effect:
+ *     Once this returns SUCCESS, the FaceDetectedSequence completes. 
+ *     On the next tick, the tree restarts at the top. 
+ *     If IsFaceDetected is still SUCCESS, it will start turning again (maintaining alignment).
+ * 
+ * Return FAILURE when:
+ *     The target yaw data is missing for too long,
+ *     the robot cannot physically turn, or
+ *     the face is lost during the turn (yaw data is missing).
+ * 
+ *   Effect:
+ *     This immediately breaks the sequence, allowing the ReactiveFallback to drop down to NavigateToPose.
+ * 
+ ***/
 BT::NodeStatus TurnTowardFace::onRunning()
 {
   std::string angle_key;
@@ -87,7 +112,7 @@ BT::NodeStatus TurnTowardFace::onRunning()
   // Expire yaw error value
   if (stamp.nanoseconds() == 0 || (now - stamp) > yaw_error_timeout_)
   {
-    RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] yaw error expired");
+    RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] yaw error expired - BT:FAILURE");
 
     // Face alignment stops. Control falls through to navigation immediately
     return BT::NodeStatus::FAILURE;
@@ -96,12 +121,12 @@ BT::NodeStatus TurnTowardFace::onRunning()
   // Aligned → stop turning
   if (std::abs(err_angle) < angle_tolerance) {
     cmd_vel_pub_->publish(cmd);
-    RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] face_yaw_error: %.3f  - rotation completed", err_angle);
+    RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] face_yaw_error: %.3f  - rotation completed - BT:SUCCESS", err_angle);
     return BT::NodeStatus::SUCCESS;
   }
 
   RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, 
-       "[TurnTowardFace] - rotating, face_yaw_error: %.3f   tolerance: %.3f", err_angle, angle_tolerance);
+       "[TurnTowardFace] - rotating, face_yaw_error: %.3f   tolerance: %.3f - BT:RUNNING", err_angle, angle_tolerance);
 
   // Turn toward face
   cmd.twist.angular.z = std::copysign(
