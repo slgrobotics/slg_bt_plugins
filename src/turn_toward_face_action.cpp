@@ -9,12 +9,12 @@ TurnTowardFace::TurnTowardFace(
   const BT::NodeConfiguration & config)
 : BT::StatefulActionNode(name, config)
 {
-  RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] constructor");
-
   if (!config.blackboard->get("node", node_)) {
     throw std::runtime_error(
       "TurnTowardFace: missing 'node' on blackboard");
   }
+
+  RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] constructor");
 
   yaw_error_sub_ = node_->create_subscription<std_msgs::msg::Float32>(
     "/bt/face_yaw_error", 10,

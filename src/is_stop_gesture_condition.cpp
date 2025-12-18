@@ -7,9 +7,14 @@ IsStopGesture::IsStopGesture(const std::string & name,
                 const BT::NodeConfiguration & config)
 : BT::ConditionNode(name, config)
 {
-  RCLCPP_INFO(node_->get_logger(), "[IsStopGesture] constructor");
-
   node_ = config.blackboard->get<rclcpp::Node::SharedPtr>("node");
+
+//   if (!config.blackboard->get("node", node_)) {
+//     throw std::runtime_error(
+//       "IsStopGesture: missing 'node' on blackboard");
+//   }
+
+  RCLCPP_INFO(node_->get_logger(), "[IsStopGesture] constructor");
 
   sub_ = node_->create_subscription<std_msgs::msg::String>(
     "/bt/gesture_command", 10,

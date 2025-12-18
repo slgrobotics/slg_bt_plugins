@@ -7,9 +7,9 @@ IsFaceDetected::IsFaceDetected(const std::string & name,
                 const BT::NodeConfiguration & config)
 : BT::ConditionNode(name, config)
 {
-  RCLCPP_INFO(node_->get_logger(), "[IsFaceDetected] constructor");
-
   node_ = config.blackboard->get<rclcpp::Node::SharedPtr>("node");
+
+  RCLCPP_INFO(node_->get_logger(), "[IsFaceDetected] constructor");
 
   sub_ = node_->create_subscription<std_msgs::msg::Bool>(
     "/bt/face_detected", 10,
