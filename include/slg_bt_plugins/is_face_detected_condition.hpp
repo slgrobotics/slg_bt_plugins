@@ -2,7 +2,7 @@
 
 #include "behaviortree_cpp/condition_node.h"
 #include <rclcpp/rclcpp.hpp>
-#include <std_msgs/msg/bool.hpp>
+#include <sensor_msgs/msg/illuminance.hpp>
 
 namespace slg_bt_plugins
 {
@@ -19,7 +19,9 @@ public:
 
 private:
   rclcpp::Node::SharedPtr node_;
-  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sub_;
+
+  // Hack: using Illuminance message for combo info, because we need a time-stamped message in BT plugins.
+  rclcpp::Subscription<sensor_msgs::msg::Illuminance>::SharedPtr sub_;
 
   std::mutex mutex_;
   bool face_detected_{false};

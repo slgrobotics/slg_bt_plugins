@@ -3,7 +3,7 @@
 #include "behaviortree_cpp/action_node.h"
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
-#include <std_msgs/msg/float32.hpp>
+#include <sensor_msgs/msg/illuminance.hpp>
 
 namespace slg_bt_plugins
 {
@@ -23,7 +23,10 @@ public:
 private:
   rclcpp::Node::SharedPtr node_;
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr cmd_vel_pub_;
-  rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr yaw_error_sub_;
+
+  // Hack: using Illuminance message for combo info, because we need a time-stamped message in BT plugins.
+  rclcpp::Subscription<sensor_msgs::msg::Illuminance>::SharedPtr yaw_error_sub_;
+
 
   std::mutex mutex_;
   double face_yaw_error_{0.0};

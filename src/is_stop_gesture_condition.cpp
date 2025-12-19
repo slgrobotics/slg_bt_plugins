@@ -16,15 +16,16 @@ IsStopGesture::IsStopGesture(const std::string & name,
 
   // Note: the "Callback Group" solution didn't work for me as expected.
 
-  sub_ = node_->create_subscription<std_msgs::msg::String>(
-        "/bt/gesture_command",
+  sub_ = node_->create_subscription<sensor_msgs::msg::Illuminance>(
+        "/bt/face_gesture_detect",
         rclcpp::QoS(rclcpp::KeepLast(1)).best_effort().durability_volatile(),
-        [this](std_msgs::msg::String::SharedPtr msg) {
+        // Note: the Lambda callback will be called when BT node is spun and only then the messages will be received, including the queued stale ones
+        [this](sensor_msgs::msg::Illuminance::SharedPtr msg) {
             // when a gesture is detected, expect steady 2 Hz stream of messages
-            RCLCPP_WARN(node_->get_logger(), "[IsStopGesture] sub received gesture: '%s'", msg->data.c_str());
+            RCLCPP_WARN(node_->get_logger(), "[IsStopGesture] sub received gesture: '%s'", msg->header.frame_id.c_str());
             std::lock_guard<std::mutex> lock(mutex_);
-            last_gesture_ = msg->data;
-            last_gesture_time_ = node_->now();
+            last_gesture_ = msg->header.frame_id;   // using frame_id field for gesture string
+            last_gesture_time_ = msg->header.stamp; // time when the message was sent
         }
     );
 }
@@ -38,7 +39,6 @@ BT::NodeStatus IsStopGesture::tick()
   rclcpp::spin_some(node_->get_node_base_interface());  // executes any pending callbacks on that node
   
   std::string gesture;
-  rclcpp::Time stamp;
 
   bool expired = false;
   bool is_stop = false;

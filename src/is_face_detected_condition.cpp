@@ -14,15 +14,16 @@ IsFaceDetected::IsFaceDetected(const std::string & name,
 
   RCLCPP_INFO(node_->get_logger(), "[IsFaceDetected] constructor");
 
-  sub_ = node_->create_subscription<std_msgs::msg::Bool>(
-    "/bt/face_detected",
+  sub_ = node_->create_subscription<sensor_msgs::msg::Illuminance>(
+    "/bt/face_gesture_detect",
     rclcpp::QoS(rclcpp::KeepLast(1)).best_effort().durability_volatile(),
-    [this](std_msgs::msg::Bool::SharedPtr msg) {
+    // Note: the Lambda callback will be called when BT node is spun and only then the messages will be received, including the queued stale ones
+    [this](sensor_msgs::msg::Illuminance::SharedPtr msg) {
         // when face is detected, expect steady 2 Hz stream of messages. Not published when face is out of view.
-        RCLCPP_WARN(node_->get_logger(), "[IsFaceDetected] sub received face_detected: '%s'", msg->data ? "true" : "false");
+        RCLCPP_WARN(node_->get_logger(), "[IsFaceDetected] sub received face_detected: '%s'", msg->illuminance > 0.5 ? "true" : "false");
         std::lock_guard<std::mutex> lock(mutex_);
-        face_detected_ = msg->data;
-        last_face_detected_time_ = node_->now();
+        face_detected_ = msg->illuminance > 0.5;  // using illuminance field as boolean
+        last_face_detected_time_ = msg->header.stamp; // time when the message was sent
     });
 }
 
@@ -33,18 +34,18 @@ BT::NodeStatus IsFaceDetected::tick()
   rclcpp::spin_some(node_->get_node_base_interface()); // executes any pending callbacks on that node
   
   bool face_detected;
-  rclcpp::Time stamp;
+  rclcpp::Time msg_timestamp;
 
   {
     std::lock_guard<std::mutex> lock(mutex_);
     face_detected = face_detected_;
-    stamp = last_face_detected_time_;
+    msg_timestamp = last_face_detected_time_;
   }
 
   const auto now = node_->now();
 
   // Expire face detection
-  if (stamp.nanoseconds() == 0 || (now - stamp) > face_detected_timeout_)
+  if (msg_timestamp.nanoseconds() == 0 || (now - msg_timestamp) > face_detected_timeout_)
   {
     RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, "[IsFaceDetected] tick()  face detection expired - BT:FAILURE");
 

@@ -6,7 +6,7 @@ find_package(nav2_behavior_tree REQUIRED)
 find_package(behaviortree_cpp REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(std_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 
 include_directories(include)
@@ -26,7 +26,7 @@ target_link_libraries(slg_bt_plugins PUBLIC
   ${nav2_behavior_tree_TARGETS}
   ${behaviortree_cpp_TARGETS}
   ${pluginlib_TARGETS}
-  ${std_msgs_TARGETS}
+  ${sensor_msgs_TARGETS}
   ${geometry_msgs_TARGETS}
   rclcpp::rclcpp
 )

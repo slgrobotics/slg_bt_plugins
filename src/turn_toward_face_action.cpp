@@ -16,15 +16,16 @@ TurnTowardFace::TurnTowardFace(
 
   RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] constructor");
 
-  yaw_error_sub_ = node_->create_subscription<std_msgs::msg::Float32>(
-    "/bt/face_yaw_error",
+  yaw_error_sub_ = node_->create_subscription<sensor_msgs::msg::Illuminance>(
+    "/bt/face_gesture_detect",
     rclcpp::QoS(rclcpp::KeepLast(1)).best_effort().durability_volatile(),
-    [this](std_msgs::msg::Float32::SharedPtr msg) {
+    // Note: the Lambda callback will be called when BT node is spun and only then the messages will be received, including the queued stale ones
+    [this](sensor_msgs::msg::Illuminance::SharedPtr msg) {
         // while face is detected, expect steady 2 Hz stream of messages.
-        RCLCPP_WARN(node_->get_logger(), "[TurnTowardFace] sub received face_yaw_error: '%.3f'", msg->data);
+        RCLCPP_WARN(node_->get_logger(), "[TurnTowardFace] sub received face_yaw_error: '%.3f'", msg->variance);
         std::lock_guard<std::mutex> lock(mutex_);
-        face_yaw_error_ = msg->data;
-        last_yaw_error_time_ = node_->now();
+        face_yaw_error_ = msg->variance; // using variance field for yaw error
+        last_yaw_error_time_ = msg->header.stamp; // time when the message was sent
     });
 
   cmd_vel_pub_ =
@@ -101,18 +102,18 @@ BT::NodeStatus TurnTowardFace::onRunning()
   rclcpp::spin_some(node_->get_node_base_interface());  // executes any pending callbacks on that node
   
   double err_angle;
-  rclcpp::Time stamp;
+  rclcpp::Time msg_timestamp;
 
   {
     std::lock_guard<std::mutex> lock(mutex_);
     err_angle = face_yaw_error_; // consume atomic value
-    stamp = last_yaw_error_time_;
+    msg_timestamp = last_yaw_error_time_;
   }
 
   const auto now = node_->now();
 
   // Expire yaw error value
-  if (stamp.nanoseconds() == 0 || (now - stamp) > yaw_error_timeout_)
+  if (msg_timestamp.nanoseconds() == 0 || (now - msg_timestamp) > yaw_error_timeout_)
   {
     RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] yaw error expired - BT:FAILURE");
 
