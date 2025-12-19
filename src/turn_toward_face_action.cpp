@@ -25,7 +25,7 @@ TurnTowardFace::TurnTowardFace(
         RCLCPP_WARN(node_->get_logger(), "[TurnTowardFace] sub received face_yaw_error: '%.3f'", msg->variance);
         std::lock_guard<std::mutex> lock(mutex_);
         face_yaw_error_ = msg->variance; // using variance field for yaw error
-        last_yaw_error_time_ = msg->header.stamp; // time when the message was sent
+        last_yaw_error_time_ = rclcpp::Time(msg->header.stamp, node_->get_clock()->get_clock_type()); // time when the message was sent
     });
 
   cmd_vel_pub_ =

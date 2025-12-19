@@ -25,7 +25,7 @@ IsStopGesture::IsStopGesture(const std::string & name,
             RCLCPP_WARN(node_->get_logger(), "[IsStopGesture] sub received gesture: '%s'", msg->header.frame_id.c_str());
             std::lock_guard<std::mutex> lock(mutex_);
             last_gesture_ = msg->header.frame_id;   // using frame_id field for gesture string
-            last_gesture_time_ = msg->header.stamp; // time when the message was sent
+            last_gesture_time_ = rclcpp::Time(msg->header.stamp, node_->get_clock()->get_clock_type()); // time when the message was sent
         }
     );
 }

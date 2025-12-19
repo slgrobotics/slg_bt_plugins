@@ -23,7 +23,7 @@ IsFaceDetected::IsFaceDetected(const std::string & name,
         RCLCPP_WARN(node_->get_logger(), "[IsFaceDetected] sub received face_detected: '%s'", msg->illuminance > 0.5 ? "true" : "false");
         std::lock_guard<std::mutex> lock(mutex_);
         face_detected_ = msg->illuminance > 0.5;  // using illuminance field as boolean
-        last_face_detected_time_ = msg->header.stamp; // time when the message was sent
+        last_face_detected_time_ = rclcpp::Time(msg->header.stamp, node_->get_clock()->get_clock_type()); // time when the message was sent
     });
 }
 
