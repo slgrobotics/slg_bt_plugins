@@ -10,6 +10,9 @@
 namespace slg_bt_plugins
 {
 
+/** @brief This node subscribes to the FGS perception adapter topic and writes the
+ *        detected gesture and related flags and face yaw to the blackboard.
+ */
 class FgsTopicToBlackboard : public BT::SyncActionNode
 {
 public:
@@ -33,17 +36,33 @@ public:
         "topic_name",
         "perception adapter topic name to subscribe to, usually '/bt/face_gesture_detect'"),
 
-      BT::OutputPort<bool>(
-        "is_stop_gesture",
-        "true if a stop gesture is detected, false otherwise"),
-
         BT::OutputPort<bool>(
         "is_face_detected",
         "true if a face is detected, false otherwise"),
 
         BT::OutputPort<float>(
         "face_yaw_error",
-        "true if a face is detected, false otherwise")
+        "true if a face is detected, false otherwise"),
+
+        BT::OutputPort<bool>(
+        "is_stop_gesture",
+        "true if a STOP gesture is detected, false otherwise"),
+
+        BT::OutputPort<bool>(
+        "is_like_gesture",
+        "true if a LIKE gesture is detected, false otherwise"),
+
+        BT::OutputPort<bool>(
+        "is_ok_gesture",
+        "true if an OK gesture is detected, false otherwise"),
+
+        BT::OutputPort<bool>(
+        "is_yes_gesture",
+        "true if a YES gesture is detected, false otherwise"),
+
+        BT::OutputPort<bool>(
+        "is_six_gesture",
+        "true if a SIX gesture is detected, false otherwise")
     };
   }
 
@@ -60,12 +79,13 @@ private:
 
   std::string topic_name_;
 
+  // thread safe variables:
+  std::mutex mutex_;
+  rclcpp::Time last_message_time_;
   std::string last_gesture_ {""};
   bool is_face_detected_{false};
   double face_yaw_error_{0.0};
 
-  std::mutex mutex_;
-  rclcpp::Time last_message_time_;
   rclcpp::Duration message_timeout_{1, 0};  // 1 second expiration
 };
 

@@ -20,9 +20,9 @@ FgsTopicToBlackboard::FgsTopicToBlackboard(const std::string & name,
 
   // Note: the "Callback Group" solution didn't work for me as expected.
 
-  // or rclcpp::QoS(rclcpp::KeepLast(1)).best_effort().durability_volatile()
+  // Only the latest sample; No replay; No backlog
   rclcpp::QoS qos(rclcpp::KeepLast(1));
-  qos.transient_local().reliable();
+  qos.best_effort().durability_volatile();
 
   sub_ = node_->create_subscription<sensor_msgs::msg::Illuminance>(
     topic_name_, qos, std::bind(&FgsTopicToBlackboard::callbackFgsPerceptionAdapterMessage, this, _1));
@@ -51,48 +51,62 @@ BT::NodeStatus FgsTopicToBlackboard::tick()
   // So, we have to manually process any waiting messages for the BT node:
   rclcpp::spin_some(node_->get_node_base_interface());  // executes any pending callbacks on that node
   
-  std::string gesture;
-
-  bool expired = false;
-  bool is_stop = false;
+  bool valid = false;
   bool is_face_detected = false;
   float face_yaw_error = 0.0;
+  std::string gesture;
+
+  bool is_stop = false;
+  bool is_like = false;
+  bool is_ok = false;
+  bool is_yes = false;
+  bool is_six = false;
 
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
-    if (last_message_time_.nanoseconds() == 0 ||
-        (node_->now() - last_message_time_) > message_timeout_)
-    {
-        // Expire and clear gesture
-        last_gesture_.clear();
-        last_message_time_ = rclcpp::Time(0, 0, node_->get_clock()->get_clock_type());
-        expired = true;
-    }
-    else
-    {
+    valid = last_message_time_.nanoseconds() != 0 &&
+                (node_->now() - last_message_time_) <= message_timeout_;
+
+    if (valid) {
         is_face_detected = is_face_detected_;
         face_yaw_error = face_yaw_error_;
         gesture = last_gesture_;
+    } else {
+        is_face_detected = false;
+        face_yaw_error = 0.0f;
+        gesture.clear();
     }
   }
 
-  if (!expired) {
-
-    is_stop = (gesture == "STOP"); // gesture can be "STOP", "LIKE", "OK", "YES", "SIX" or empty string
+  if (valid) {
 
     if(gesture != "") {
         RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
-        "[FgsTopicToBlackboard] tick() gesture: '%s' = %s", gesture.c_str(), is_stop ? "BT:SUCCESS" : "BT:FAILURE");
+        "[FgsTopicToBlackboard] tick() gesture: '%s'", gesture.c_str());
     }
+
+    is_stop = (gesture == "STOP"); // gesture can be "STOP", "LIKE", "OK", "YES", "SIX" or empty string
+    is_like = (gesture == "LIKE");
+    is_ok = (gesture == "OK");
+    is_yes = (gesture == "YES");
+    is_six = (gesture == "SIX");
+
   } else {
-    RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,"[FgsTopicToBlackboard] tick()  gesture expired - BT:FAILURE");
+    RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,"[FgsTopicToBlackboard] tick()  gesture message stale or missing");
   }
 
   setOutput("is_face_detected", is_face_detected);
-  setOutput("is_stop_gesture", is_stop);
   setOutput("face_yaw_error", face_yaw_error);
 
+  setOutput("is_stop_gesture", is_stop);
+  setOutput("is_like_gesture", is_like);
+  setOutput("is_ok_gesture", is_ok);
+  setOutput("is_yes_gesture", is_yes);
+  setOutput("is_six_gesture", is_six);
+
+  // This node is not a decision; it's just a data pump
+  // It should never block the tree
   return BT::NodeStatus::SUCCESS;
 }
 
