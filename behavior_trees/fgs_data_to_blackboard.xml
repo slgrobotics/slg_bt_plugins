@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4" main_tree_to_execute="MainTree">
+
+  <BehaviorTree ID="MainTree">
+
+    <!--
+      This tree exists ONLY to:
+        - Spin the BT
+        - Tick FgsTopicToBlackboard continuously
+        - Verify Blackboard updates & message freshness
+    -->
+
+    <Sequence name="DataPumpRoot">
+
+      <!-- Pump perception data into the Blackboard -->
+      <FgsTopicToBlackboard
+        topic_name="/bt/face_gesture_detect"
+        is_face_detected="{is_face_detected}"
+        face_yaw_error="{face_yaw_error}"
+        is_stop_gesture="{is_stop_gesture}"
+        is_like_gesture="{is_like_gesture}"
+        is_ok_gesture="{is_ok_gesture}"
+        is_yes_gesture="{is_yes_gesture}"
+        is_six_gesture="{is_six_gesture}"
+      />
+
+      <!-- Always succeed so the Sequence keeps ticking -->
+      <AlwaysSuccess/>
+
+    </Sequence>
+
+  </BehaviorTree>
+
+</root>
