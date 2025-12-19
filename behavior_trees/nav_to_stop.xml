@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="MainTree">
+    <Sequence>
+      <!-- 
+        This Precondition checks 'is_stop_gesture' on Blackboard. 
+        If true, it forces the branch to FAILURE (stopping navigation).
+        If false, it executes the child (NavigateToPose).
+      -->
+      <Precondition if="is_stop_gesture == false" else="FAILURE">
+        <NavigateToPose goal="{goal}" />
+      </Precondition>
+      
+      <!-- 
+        If navigation fails (either due to the gesture or a path issue), 
+        perform a recovery behavior like waiting. 
+      -->
+      <Wait duration="2.0" />
+    </Sequence>
+  </BehaviorTree>
+</root>
