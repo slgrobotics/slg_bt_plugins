@@ -15,6 +15,7 @@ add_library(slg_bt_plugins SHARED
   src/is_stop_gesture_condition.cpp
   src/is_face_detected_condition.cpp
   src/turn_toward_face_action.cpp
+  src/fgs_to_bt_node.cpp
   src/a_node_registration.cpp
 )
 
