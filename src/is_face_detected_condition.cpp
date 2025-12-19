@@ -15,7 +15,8 @@ IsFaceDetected::IsFaceDetected(const std::string & name,
   RCLCPP_INFO(node_->get_logger(), "[IsFaceDetected] constructor");
 
   sub_ = node_->create_subscription<std_msgs::msg::Bool>(
-    "/bt/face_detected", 10,
+    "/bt/face_detected",
+    rclcpp::QoS(rclcpp::KeepLast(1)).best_effort().durability_volatile(),
     [this](std_msgs::msg::Bool::SharedPtr msg) {
         // when face is detected, expect steady 2 Hz stream of messages. Not published when face is out of view.
         RCLCPP_WARN(node_->get_logger(), "[IsFaceDetected] sub received face_detected: '%s'", msg->data ? "true" : "false");

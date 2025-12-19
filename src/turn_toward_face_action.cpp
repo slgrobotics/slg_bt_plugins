@@ -17,7 +17,8 @@ TurnTowardFace::TurnTowardFace(
   RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] constructor");
 
   yaw_error_sub_ = node_->create_subscription<std_msgs::msg::Float32>(
-    "/bt/face_yaw_error", 10,
+    "/bt/face_yaw_error",
+    rclcpp::QoS(rclcpp::KeepLast(1)).best_effort().durability_volatile(),
     [this](std_msgs::msg::Float32::SharedPtr msg) {
         // while face is detected, expect steady 2 Hz stream of messages.
         RCLCPP_WARN(node_->get_logger(), "[TurnTowardFace] sub received face_yaw_error: '%.3f'", msg->data);

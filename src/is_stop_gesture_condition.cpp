@@ -18,7 +18,7 @@ IsStopGesture::IsStopGesture(const std::string & name,
 
   sub_ = node_->create_subscription<std_msgs::msg::String>(
         "/bt/gesture_command",
-        rclcpp::QoS(1).best_effort(),
+        rclcpp::QoS(rclcpp::KeepLast(1)).best_effort().durability_volatile(),
         [this](std_msgs::msg::String::SharedPtr msg) {
             // when a gesture is detected, expect steady 2 Hz stream of messages
             RCLCPP_WARN(node_->get_logger(), "[IsStopGesture] sub received gesture: '%s'", msg->data.c_str());
