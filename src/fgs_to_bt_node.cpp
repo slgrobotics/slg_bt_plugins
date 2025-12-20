@@ -62,9 +62,12 @@ BT::NodeStatus FgsTopicToBlackboard::tick()
   bool is_yes = false;
   bool is_six = false;
 
+  rclcpp::Duration message_timeout_{1, 0};  // 1 second expiration for messages
+
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
+    // Valid means recent. Messages come at ~10 Hz; we assume 1000 ms is recent enough.
     valid = last_message_time_.nanoseconds() != 0 &&
                 (node_->now() - last_message_time_) <= message_timeout_;
 
@@ -93,8 +96,11 @@ BT::NodeStatus FgsTopicToBlackboard::tick()
     is_six = (gesture == "SIX");
 
   } else {
-    RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,"[FgsTopicToBlackboard] tick()  gesture message stale or missing");
+    RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,"[FgsTopicToBlackboard] tick()  face & gesture message stale or missing");
   }
+
+  // Note: the output values are set even if the message is stale or missing.
+  // The tree logic will decide what to do based on these values.
 
   setOutput("is_face_detected", is_face_detected);
   setOutput("face_yaw_error", face_yaw_error);

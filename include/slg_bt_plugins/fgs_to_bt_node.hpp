@@ -85,8 +85,6 @@ private:
   std::string last_gesture_ {""};
   bool is_face_detected_{false};
   double face_yaw_error_{0.0};
-
-  rclcpp::Duration message_timeout_{1, 0};  // 1 second expiration
 };
 
 }  // namespace slg_bt_plugins
