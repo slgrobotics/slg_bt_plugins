@@ -2,10 +2,10 @@
 <root BTCPP_format="4">
   <BehaviorTree ID="MainTree">
     <!-- 
-      SuccessThreshold="1": The Parallel returns SUCCESS if at least 1 child succeeds.
-      FailureThreshold="1": The Parallel returns FAILURE if any child fails.
+      failure_count="1": The Parallel returns SUCCESS if at least 1 child succeeds.
+      success_count="1": The Parallel returns FAILURE if any child fails.
     -->
-    <Parallel SuccessThreshold="1" FailureThreshold="1">
+    <Parallel failure_count="1" success_count="1">
       
       <!-- 1. Background Data Pump: Runs constantly -->
       <KeepRunningUntilFailure>
@@ -33,6 +33,11 @@
       <!-- 2. Main Logic: Reacts to the data on the Blackboard -->
       <ReactiveSequence>
 
+        <Sequence name="FaceDetectedSequence">
+          <IsFaceDetected/>
+          <TurnTowardFace angle_tolerance="0.1" max_turn_rate="0.5"/>
+        </Sequence>
+
         <!-- 
           This Precondition checks 'is_stop_gesture' on Blackboard. 
           The precondition will be re-evaluated every tick. 
@@ -48,7 +53,7 @@
             If precondition or navigation fails (either due to the gesture or a path issue), 
             perform a recovery behavior like waiting. 
         -->
-        <Wait duration="2.0" />
+        <Wait wait_duration="2.0" />
 
       </ReactiveSequence>
 
