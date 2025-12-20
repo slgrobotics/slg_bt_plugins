@@ -14,6 +14,7 @@ IsFaceDetected::IsFaceDetected(const std::string & name,
 
   RCLCPP_INFO(node_->get_logger(), "[IsFaceDetected] constructor");
 
+#ifdef USE_RCLCPP_SUBSCRIPTIONS
   sub_ = node_->create_subscription<sensor_msgs::msg::Illuminance>(
     "/bt/face_gesture_detect",
     rclcpp::QoS(rclcpp::KeepLast(1)).best_effort().durability_volatile(),
@@ -25,15 +26,18 @@ IsFaceDetected::IsFaceDetected(const std::string & name,
         face_detected_ = msg->illuminance > 0.5;  // using illuminance field as boolean
         last_face_detected_time_ = rclcpp::Time(msg->header.stamp, node_->get_clock()->get_clock_type()); // time when the message was sent
     });
+#endif // USE_RCLCPP_SUBSCRIPTIONS
 }
 
 BT::NodeStatus IsFaceDetected::tick()
 {
+  bool face_detected;
+
+#ifdef USE_RCLCPP_SUBSCRIPTIONS
   // The subscription happens, but messages are queued until the node is spun.
   // So, we have to manually process any waiting messages for the BT node:
   rclcpp::spin_some(node_->get_node_base_interface()); // executes any pending callbacks on that node
   
-  bool face_detected;
   rclcpp::Time msg_timestamp;
 
   {
@@ -53,6 +57,13 @@ BT::NodeStatus IsFaceDetected::tick()
   } else {
     RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, "[IsFaceDetected] tick()  face_detected: %s", face_detected ? "BT:SUCCESS" : "BT:FAILURE");
   }
+#else // USE_RCLCPP_SUBSCRIPTIONS
+
+  getInput("is_face_detected", face_detected);
+
+  RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, "[IsFaceDetected] tick()  face_detected: %s", face_detected ? "BT:SUCCESS" : "BT:FAILURE");
+
+#endif // USE_RCLCPP_SUBSCRIPTIONS
 
   /*
     This node guards the "Turn Toward Face" behavior.

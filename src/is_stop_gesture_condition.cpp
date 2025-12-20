@@ -14,6 +14,7 @@ IsStopGesture::IsStopGesture(const std::string & name,
 
   RCLCPP_INFO(node_->get_logger(), "[IsStopGesture] constructor");
 
+#ifdef USE_RCLCPP_SUBSCRIPTIONS
   // Note: the "Callback Group" solution didn't work for me as expected.
 
   sub_ = node_->create_subscription<sensor_msgs::msg::Illuminance>(
@@ -28,12 +29,16 @@ IsStopGesture::IsStopGesture(const std::string & name,
             last_gesture_time_ = rclcpp::Time(msg->header.stamp, node_->get_clock()->get_clock_type()); // time when the message was sent
         }
     );
+#endif // USE_RCLCPP_SUBSCRIPTIONS
 }
 
 // Nav2 ticks BTs at ~10–30 Hz.
 
 BT::NodeStatus IsStopGesture::tick()
 {
+  bool is_stop = false;
+
+#ifdef USE_RCLCPP_SUBSCRIPTIONS
   // The subscription happens, but messages are queued until the node is spun.
   // So, we have to manually process any waiting messages for the BT node:
   rclcpp::spin_some(node_->get_node_base_interface());  // executes any pending callbacks on that node
@@ -41,7 +46,6 @@ BT::NodeStatus IsStopGesture::tick()
   std::string gesture;
 
   bool expired = false;
-  bool is_stop = false;
 
   {
     std::lock_guard<std::mutex> lock(mutex_);
@@ -71,6 +75,11 @@ BT::NodeStatus IsStopGesture::tick()
   } else {
     RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,"[IsStopGesture] tick()  gesture expired - BT:FAILURE");
   }
+#else // USE_RCLCPP_SUBSCRIPTIONS
+
+  getInput("is_stop_gesture", is_stop);  // get the gesture from the blackboard
+
+#endif // USE_RCLCPP_SUBSCRIPTIONS
 
   /*
    This node acts as a "preemption" trigger.

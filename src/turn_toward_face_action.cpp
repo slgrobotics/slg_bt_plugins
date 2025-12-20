@@ -16,6 +16,7 @@ TurnTowardFace::TurnTowardFace(
 
   RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] constructor");
 
+#ifdef USE_RCLCPP_SUBSCRIPTIONS
   yaw_error_sub_ = node_->create_subscription<sensor_msgs::msg::Illuminance>(
     "/bt/face_gesture_detect",
     rclcpp::QoS(rclcpp::KeepLast(1)).best_effort().durability_volatile(),
@@ -27,23 +28,11 @@ TurnTowardFace::TurnTowardFace(
         face_yaw_error_ = msg->variance; // using variance field for yaw error
         last_yaw_error_time_ = rclcpp::Time(msg->header.stamp, node_->get_clock()->get_clock_type()); // time when the message was sent
     });
+#endif // USE_RCLCPP_SUBSCRIPTIONS
 
   cmd_vel_pub_ =
     node_->create_publisher<geometry_msgs::msg::TwistStamped>(
       "/cmd_vel", rclcpp::SystemDefaultsQoS());
-}
-
-BT::PortsList TurnTowardFace::providedPorts()
-{
-  // we use ports just for parameters, not live data
-  return {
-    BT::InputPort<double>(
-      "angle_tolerance", 0.1,
-      "Acceptable yaw error (radians)"),
-    BT::InputPort<double>(
-      "max_turn_rate", 0.5,
-      "Maximum angular velocity (rad/s)")
-  };
 }
 
 BT::NodeStatus TurnTowardFace::onStart()
@@ -88,7 +77,7 @@ BT::NodeStatus TurnTowardFace::onRunning()
   if (!getInput("angle_tolerance", angle_tolerance) ||
       !getInput("max_turn_rate", max_turn_rate)) {
 
-      RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] onRunning() - missing input parameters");
+      RCLCPP_WARN(node_->get_logger(), "[TurnTowardFace] onRunning() - missing input parameters");
       return BT::NodeStatus::FAILURE;
   }
 
@@ -97,11 +86,13 @@ BT::NodeStatus TurnTowardFace::onRunning()
   cmd.header.stamp = node_->now();
   cmd.header.frame_id = "base_link";
 
+  double err_angle;
+
+#ifdef USE_RCLCPP_SUBSCRIPTIONS
   // The subscription happens, but messages are queued until the node is spun.
   // So, we have to manually process any waiting messages for the BT node:
   rclcpp::spin_some(node_->get_node_base_interface());  // executes any pending callbacks on that node
   
-  double err_angle;
   rclcpp::Time msg_timestamp;
 
   {
@@ -120,11 +111,21 @@ BT::NodeStatus TurnTowardFace::onRunning()
     // Face alignment stops. Control falls through to navigation immediately
     return BT::NodeStatus::FAILURE;
   }
+#else // USE_RCLCPP_SUBSCRIPTIONS
+
+  if (!getInput("face_yaw_error", err_angle)) {
+
+      RCLCPP_WARN(node_->get_logger(), "[TurnTowardFace] onRunning() - missing face_yaw_error");
+      return BT::NodeStatus::FAILURE;
+  }
+
+#endif // USE_RCLCPP_SUBSCRIPTIONS
 
   // Aligned → stop turning
   if (std::abs(err_angle) < angle_tolerance) {
     cmd_vel_pub_->publish(cmd);
     RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] face_yaw_error: %.3f < %.3f - rotation completed - BT:SUCCESS", err_angle, angle_tolerance);
+
     return BT::NodeStatus::SUCCESS;
   }
 
@@ -141,6 +142,7 @@ BT::NodeStatus TurnTowardFace::onRunning()
   cmd.twist.angular.z = turn_rate;
 
   cmd_vel_pub_->publish(cmd);
+  
   return BT::NodeStatus::RUNNING;
 }
 

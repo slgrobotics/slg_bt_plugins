@@ -1,8 +1,13 @@
 #pragma once
 
+//#define USE_RCLCPP_SUBSCRIPTIONS
+
 #include "behaviortree_cpp/condition_node.h"
 #include <rclcpp/rclcpp.hpp>
+
+#ifdef USE_RCLCPP_SUBSCRIPTIONS
 #include <sensor_msgs/msg/illuminance.hpp>
+#endif // USE_RCLCPP_SUBSCRIPTIONS
 
 namespace slg_bt_plugins
 {
@@ -13,14 +18,31 @@ public:
   IsFaceDetected(const std::string & name,
                 const BT::NodeConfiguration & config);
 
-  static BT::PortsList providedPorts() { return {}; };
+#ifdef USE_RCLCPP_SUBSCRIPTIONS
+
+static BT::PortsList providedPorts() { return {}; };
+
+#else // USE_RCLCPP_SUBSCRIPTIONS
+
+static BT::PortsList providedPorts()
+  {
+    return {
+      // Live data from the FgsTopicToBlackboard node
+      BT::InputPort<bool>(
+      "is_face_detected",
+      "true if a face is detected, false otherwise")
+    };
+  }
+#endif // USE_RCLCPP_SUBSCRIPTIONS
 
   BT::NodeStatus tick() override;
 
 private:
   rclcpp::Node::SharedPtr node_;
 
-  // Hack: using Illuminance message for combo info, because we need a time-stamped message in BT plugins.
+#ifdef USE_RCLCPP_SUBSCRIPTIONS
+
+// Hack: using Illuminance message for combo info, because we need a time-stamped message in BT plugins.
   rclcpp::Subscription<sensor_msgs::msg::Illuminance>::SharedPtr sub_;
 
   std::mutex mutex_;
@@ -28,6 +50,8 @@ private:
 
   rclcpp::Time last_face_detected_time_;
   rclcpp::Duration face_detected_timeout_{2, 0};  // 2 seconds expiration
+
+#endif // USE_RCLCPP_SUBSCRIPTIONS
 };
 
 }  // namespace slg_bt_plugins

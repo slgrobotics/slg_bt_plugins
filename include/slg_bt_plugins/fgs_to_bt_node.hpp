@@ -42,7 +42,7 @@ public:
 
         BT::OutputPort<float>(
         "face_yaw_error",
-        "true if a face is detected, false otherwise"),
+        "an angle in radians to the face when detected, zero otherwise"),
 
         BT::OutputPort<bool>(
         "is_stop_gesture",
