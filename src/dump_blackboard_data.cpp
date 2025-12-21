@@ -41,7 +41,7 @@ BT::NodeStatus DumpBlackboardData::tick()
       RCLCPP_WARN_THROTTLE(node_->get_logger(), *node_->get_clock(), trace_throttle_period_ms, "[DumpBlackboardData] tick() - missing 'face_yaw_error' input on blackboard");
   }
 
-  RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), trace_throttle_period_ms, "[DumpBlackboardData] face_yaw_error: %.3f", (double)err_angle);
+  RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), trace_throttle_period_ms, "[DumpBlackboardData] tick()  face_yaw_error: %.3f", (double)err_angle);
 
   if (!getInput("gesture", gesture)) {
 
