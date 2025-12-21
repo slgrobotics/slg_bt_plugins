@@ -24,9 +24,12 @@
         <!-- We use a Fallback so that even if No Face is detected, 
              the Sequence doesn't "fail" and stop the loop -->
         <Fallback name="ReactionWrapper">
-          <Sequence name="TurnIfDetected">
+          <Sequence name="TraceIfFaceDetected">
+
             <IsFaceDetected is_face_detected="{is_face_detected}"/>
+            <!-- cannot put an action node here, because its RUNNING state would block the loop and stop the pump -->
             <!-- <TurnTowardFace angle_tolerance="0.1" max_turn_rate="0.5" face_yaw_error="{face_yaw_error} /> -->
+
           </Sequence>
           
           <!-- If no face, this succeeds so the outer Sequence continues and the pump keeps working -->
