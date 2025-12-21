@@ -22,11 +22,11 @@ public:
 
   static BT::PortsList providedPorts()
   {
-    return {
+    return BT::PortsList ({
 #ifndef USE_RCLCPP_SUBSCRIPTIONS
         // Live data from the FgsTopicToBlackboard node
         BT::InputPort<double>(
-        "face_yaw_error",
+        "face_yaw_error", 0.0,
         "an angle in radians to the face when detected, zero otherwise"),
 #endif // USE_RCLCPP_SUBSCRIPTIONS
         // we use ports below just for parameters, not live data
@@ -36,7 +36,7 @@ public:
         BT::InputPort<double>(
         "max_turn_rate", 0.5,
         "Maximum angular velocity (rad/s)")
-    };
+    });
   }
 
   BT::NodeStatus onStart() override;

@@ -26,12 +26,12 @@ static BT::PortsList providedPorts() { return {}; };
 
 static BT::PortsList providedPorts()
   {
-    return {
+    return BT::PortsList ({
       // Live data from the FgsTopicToBlackboard node
       BT::InputPort<bool>(
-      "is_stop_gesture",
+      "is_stop_gesture", false,
       "true if a stop gesture is detected, false otherwise")
-    };
+    });
   }
 #endif // USE_RCLCPP_SUBSCRIPTIONS
 

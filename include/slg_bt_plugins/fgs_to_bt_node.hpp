@@ -31,7 +31,7 @@ public:
    */
   static BT::PortsList providedPorts()
   {
-    return {
+    return BT::PortsList({
       BT::InputPort<std::string>(
         "topic_name",
         "perception adapter topic name to subscribe to, usually '/bt/face_gesture_detect'"),
@@ -67,7 +67,7 @@ public:
         BT::OutputPort<bool>(
         "is_six_gesture",
         "true if a SIX gesture is detected, false otherwise")
-    };
+    });
   }
 
 private:
