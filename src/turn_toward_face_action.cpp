@@ -87,6 +87,7 @@ BT::NodeStatus TurnTowardFace::onRunning()
   cmd.header.frame_id = "base_link";
 
   float err_angle;
+  bool face_detected{true}; // defaults to true, as it is never set by subscription callback. Comes from blackboard only when not using subscription.
 
 #ifdef USE_RCLCPP_SUBSCRIPTIONS
   // The subscription happens, but messages are queued until the node is spun.
@@ -113,18 +114,21 @@ BT::NodeStatus TurnTowardFace::onRunning()
   }
 #else // USE_RCLCPP_SUBSCRIPTIONS
 
-  if (!getInput("face_yaw_error", err_angle)) {
+  if (!getInput("is_face_detected", face_detected) || !getInput("face_yaw_error", err_angle)) {
 
-      RCLCPP_WARN_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, "[TurnTowardFace] onRunning() - missing 'face_yaw_error' input on blackboard");
+      RCLCPP_WARN_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, "[TurnTowardFace] onRunning() - missing 'is_face_detected' or 'face_yaw_error' input on blackboard");
       return BT::NodeStatus::RUNNING; // stay in sequence. Is data pump working?
   }
 
 #endif // USE_RCLCPP_SUBSCRIPTIONS
 
-  // Aligned → stop turning
-  if (std::abs((double)err_angle) < angle_tolerance) {
+  // Lost face or aligned → stop turning
+  if (!face_detected || std::abs((double)err_angle) < angle_tolerance) {
+
     cmd_vel_pub_->publish(cmd);
-    RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] face_yaw_error: %.3f < %.3f - rotation completed - BT:SUCCESS", (double)err_angle, angle_tolerance);
+
+    RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] face_detected: %s, face_yaw_error: %.3f < %.3f - rotation completed - BT:SUCCESS",
+                 face_detected ? "true" : "false", (double)err_angle, angle_tolerance);
 
     return BT::NodeStatus::SUCCESS;
   }

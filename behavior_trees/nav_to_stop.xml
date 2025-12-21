@@ -39,7 +39,7 @@
 
             <Sequence name="TurnIfDetected">
               <IsFaceDetected is_face_detected="{is_face_detected}"/>
-              <TurnTowardFace angle_tolerance="0.1" max_turn_rate="0.5" face_yaw_error="{face_yaw_error}"/>
+              <TurnTowardFace angle_tolerance="0.1" max_turn_rate="0.5" is_face_detected="{is_face_detected}" face_yaw_error="{face_yaw_error}"/>
             </Sequence>
 
             <!-- If IsFaceDetected fails, this branch succeeds so the tree keeps running -->

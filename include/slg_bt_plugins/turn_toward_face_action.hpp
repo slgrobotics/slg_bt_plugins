@@ -24,6 +24,9 @@ public:
     return BT::PortsList ({
 #ifndef USE_RCLCPP_SUBSCRIPTIONS
         // Live data from the FgsTopicToBlackboard node
+        BT::InputPort<bool>(
+        "is_face_detected", false,
+        "true if a face is detected, false otherwise"),
         BT::InputPort<float>(
         "face_yaw_error", 0.0f,
         "an angle in radians to the face when detected, zero otherwise"),
