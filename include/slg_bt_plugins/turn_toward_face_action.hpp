@@ -25,8 +25,8 @@ public:
     return BT::PortsList ({
 #ifndef USE_RCLCPP_SUBSCRIPTIONS
         // Live data from the FgsTopicToBlackboard node
-        BT::InputPort<double>(
-        "face_yaw_error", 0.0,
+        BT::InputPort<float>(
+        "face_yaw_error", 0.0f,
         "an angle in radians to the face when detected, zero otherwise"),
 #endif // USE_RCLCPP_SUBSCRIPTIONS
         // we use ports below just for parameters, not live data
@@ -53,7 +53,7 @@ private:
 
 
   std::mutex mutex_;
-  double face_yaw_error_{0.0};
+  float face_yaw_error_{0.0f};
 
   rclcpp::Time last_yaw_error_time_;
   rclcpp::Duration yaw_error_timeout_{2, 0};  // 2 seconds expiration

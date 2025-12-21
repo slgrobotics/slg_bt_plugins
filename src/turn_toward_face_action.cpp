@@ -86,7 +86,7 @@ BT::NodeStatus TurnTowardFace::onRunning()
   cmd.header.stamp = node_->now();
   cmd.header.frame_id = "base_link";
 
-  double err_angle;
+  float err_angle;
 
 #ifdef USE_RCLCPP_SUBSCRIPTIONS
   // The subscription happens, but messages are queued until the node is spun.

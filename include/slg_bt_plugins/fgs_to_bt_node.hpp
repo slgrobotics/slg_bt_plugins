@@ -27,6 +27,10 @@ public:
 
   /**
    * @brief Creates list of BT ports
+   *        Input port specifies topic published by https://github.com/slgrobotics/face_gesture_sensor
+   *        Output ports must be primed with blackboard keys (e.g. is_face_detected="{is_face_detected}" in XML).
+   *        See "minimal_pump.xml" for an example of how to use this node.
+   * 
    * @return BT::PortsList Containing basic ports along with node-specific ports
    */
   static BT::PortsList providedPorts()
@@ -88,7 +92,7 @@ private:
   rclcpp::Time last_message_time_;
   std::string last_gesture_ {""};
   bool is_face_detected_{false};
-  double face_yaw_error_{0.0};
+  float face_yaw_error_{0.0f};
 };
 
 }  // namespace slg_bt_plugins

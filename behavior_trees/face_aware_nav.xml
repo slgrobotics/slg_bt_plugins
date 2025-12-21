@@ -21,6 +21,9 @@
 
       No face
           Tree behaves exactly like stock Nav2
+
+  Note: this is a NO-PUMP version of the tree, meaning it does not use a FgsTopicToBlackboard "data pump" node.
+        Use it if you have "#define USE_RCLCPP_SUBSCRIPTIONS" in all *.hpp files.
   -->
 
   <BehaviorTree ID="MainTree">

@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4" main_tree_to_execute="MainTree">
+
+  <!--
+  Note: this is a NO-PUMP version of the tree, meaning it does not use a FgsTopicToBlackboard "data pump" node.
+        Use it if you have "#define USE_RCLCPP_SUBSCRIPTIONS" in all *.hpp files.
+  -->
+  
   <BehaviorTree ID="MainTree">
     <!-- This decorator ensures the tree never stops. 
          If children return SUCCESS, it restarts them immediately. -->

@@ -26,7 +26,7 @@
         <Fallback name="ReactionWrapper">
           <Sequence name="TurnIfDetected">
             <IsFaceDetected is_face_detected="{is_face_detected}"/>
-            <!-- <TurnTowardFace angle_tolerance="0.1" max_turn_rate="0.5" /> -->
+            <!-- <TurnTowardFace angle_tolerance="0.1" max_turn_rate="0.5" face_yaw_error="{face_yaw_error} /> -->
           </Sequence>
           
           <!-- If no face, this succeeds so the outer Sequence continues and the pump keeps working -->

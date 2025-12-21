@@ -41,7 +41,7 @@ FgsTopicToBlackboard::callbackFgsPerceptionAdapterMessage(const sensor_msgs::msg
 
     std::lock_guard<std::mutex> lock(mutex_);
     is_face_detected_ = msg->illuminance > 0.5;  // using illuminance field as boolean
-    face_yaw_error_ = msg->variance;             // using variance field for yaw error
+    face_yaw_error_ = (float)msg->variance;      // using variance field for yaw error
     last_gesture_ = msg->header.frame_id;        // using frame_id field for gesture string
     last_message_time_ = rclcpp::Time(msg->header.stamp, node_->get_clock()->get_clock_type()); // time when the message was sent
 }
@@ -56,7 +56,7 @@ BT::NodeStatus FgsTopicToBlackboard::tick()
   
   bool valid = false;
   bool is_face_detected = false;
-  float face_yaw_error = 0.0;
+  float face_yaw_error = 0.0f;
   std::string gesture;
 
   bool is_stop = false;
