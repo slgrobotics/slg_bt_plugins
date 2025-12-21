@@ -25,7 +25,7 @@ TurnTowardFace::TurnTowardFace(
         // while face is detected, expect steady 2 Hz stream of messages.
         RCLCPP_WARN(node_->get_logger(), "[TurnTowardFace] sub received face_yaw_error: '%.3f'", msg->variance);
         std::lock_guard<std::mutex> lock(mutex_);
-        face_yaw_error_ = msg->variance; // using variance field for yaw error
+        face_yaw_error_ = (float)msg->variance; // using variance field for yaw error
         last_yaw_error_time_ = rclcpp::Time(msg->header.stamp, node_->get_clock()->get_clock_type()); // time when the message was sent
     });
 #endif // USE_RCLCPP_SUBSCRIPTIONS
@@ -122,21 +122,21 @@ BT::NodeStatus TurnTowardFace::onRunning()
 #endif // USE_RCLCPP_SUBSCRIPTIONS
 
   // Aligned → stop turning
-  if (std::abs(err_angle) < angle_tolerance) {
+  if (std::abs((double)err_angle) < angle_tolerance) {
     cmd_vel_pub_->publish(cmd);
-    RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] face_yaw_error: %.3f < %.3f - rotation completed - BT:SUCCESS", err_angle, angle_tolerance);
+    RCLCPP_INFO(node_->get_logger(), "[TurnTowardFace] face_yaw_error: %.3f < %.3f - rotation completed - BT:SUCCESS", (double)err_angle, angle_tolerance);
 
     return BT::NodeStatus::SUCCESS;
   }
 
   double turn_rate_factor = 1.0;
 
-  double turn_rate = err_angle * turn_rate_factor; // angle -> radians/sec
+  double turn_rate = (double)err_angle * turn_rate_factor; // angle -> radians/sec
   
   turn_rate = std::copysign(std::min(max_turn_rate, std::abs(turn_rate)), err_angle);  // limit to max_turn_rate with sign
 
   RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, 
-       "[TurnTowardFace] - rotating, face_yaw_error: %.3f   tolerance: %.3f   turn_rate: %.3f - BT:RUNNING", err_angle, angle_tolerance, turn_rate);
+       "[TurnTowardFace] - rotating, face_yaw_error: %.3f   tolerance: %.3f   turn_rate: %.3f - BT:RUNNING", (double)err_angle, angle_tolerance, turn_rate);
 
   // Turn toward face
   cmd.twist.angular.z = turn_rate;

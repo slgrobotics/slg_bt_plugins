@@ -3,9 +3,9 @@
 
   <!--
   Note: this is a NO-PUMP version of the tree, meaning it does not use a FgsTopicToBlackboard "data pump" node.
-        Use it if you have "#define USE_RCLCPP_SUBSCRIPTIONS" in all *.hpp files.
+        Use it if you have "USE_RCLCPP_SUBSCRIPTIONS" in CMakeLists.txt file.
   -->
-  
+
   <BehaviorTree ID="MainTree">
     <!-- This decorator ensures the tree never stops. 
          If children return SUCCESS, it restarts them immediately. -->

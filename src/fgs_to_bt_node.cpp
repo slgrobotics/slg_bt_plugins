@@ -98,7 +98,7 @@ BT::NodeStatus FgsTopicToBlackboard::tick()
   //if(is_face_detected) {
       RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
       "[FgsTopicToBlackboard] tick() is_face_detected: '%s'   face_yaw_error: %.5f   gesture: '%s'",
-       (is_face_detected ? "true" : "false"), face_yaw_error, gesture.c_str());
+       (is_face_detected ? "true" : "false"), (double)face_yaw_error, gesture.c_str());
   //}
 
   // Note: the output values are set even if the message is stale or missing.

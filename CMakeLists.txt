@@ -21,7 +21,24 @@ add_library(slg_bt_plugins SHARED
 
 # THIS IS THE KEY LINE TO MAKE THE BT_RegisterNodesFromPlugin SYMBOL VISIBLE
 # see https://chatgpt.com/s/t_6941bc0282808191b0b911baf8efea69
-target_compile_definitions(slg_bt_plugins PRIVATE BT_PLUGIN_EXPORT)
+#
+# Also, this is where you can enaable USE_RCLCPP_SUBSCRIPTIONS
+#       if you want to use rclcpp subscriptions instead of Data Pump in your BT nodes
+target_compile_definitions(slg_bt_plugins
+  PRIVATE BT_PLUGIN_EXPORT
+  #USE_RCLCPP_SUBSCRIPTIONS
+)
+
+# Enable strict warnings and detect implicit conversions
+target_compile_options(slg_bt_plugins PRIVATE
+  -Wall                   # Enable most common warnings
+  -Wextra                 # Enable even more warnings
+  -Wpedantic              # Ensure strict ISO C++ compliance
+  -Wconversion            # Detect general implicit conversions (int to char, etc.)
+  -Wfloat-conversion      # SPECIFICALLY detect double to float conversions
+  -Wdouble-promotion      # Warn when a float is implicitly promoted to double
+  -Werror                 # Optional: Treat warnings as errors (stops the build)
+)
 
 target_link_libraries(slg_bt_plugins PUBLIC
   ${nav2_behavior_tree_TARGETS}

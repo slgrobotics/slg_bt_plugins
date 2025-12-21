@@ -1,10 +1,9 @@
 #pragma once
 
-//#define USE_RCLCPP_SUBSCRIPTIONS
-
 #include "behaviortree_cpp/action_node.h"
 #include <rclcpp/rclcpp.hpp>
 
+// See CMakeLists.txt for USE_RCLCPP_SUBSCRIPTIONS option
 #ifdef USE_RCLCPP_SUBSCRIPTIONS
 #include <sensor_msgs/msg/illuminance.hpp>
 #endif // USE_RCLCPP_SUBSCRIPTIONS
