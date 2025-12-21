@@ -83,26 +83,20 @@ BT::NodeStatus FgsTopicToBlackboard::tick()
   }
 
   if (valid) {
-
-    if(gesture != "") {
-        RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
-        "[FgsTopicToBlackboard] tick() gesture: '%s'", gesture.c_str());
-    }
-
-    if(std::abs(face_yaw_error) > 0.00001f) {
-        RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
-        "[FgsTopicToBlackboard] tick() face_yaw_error: '%.5f'", face_yaw_error);
-    }
-
     is_stop = (gesture == "STOP"); // gesture can be "STOP", "LIKE", "OK", "YES", "SIX" or empty string
     is_like = (gesture == "LIKE");
     is_ok = (gesture == "OK");
     is_yes = (gesture == "YES");
     is_six = (gesture == "SIX");
-
   } else {
     RCLCPP_WARN_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,"[FgsTopicToBlackboard] tick()  face & gesture message stale or missing");
   }
+
+  //if(is_face_detected) {
+      RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
+      "[FgsTopicToBlackboard] tick() is_face_detected: '%s'   face_yaw_error: %.5f   gesture: '%s'",
+       (is_face_detected ? "true" : "false"), face_yaw_error, gesture.c_str());
+  //}
 
   // Note: the output values are set even if the message is stale or missing.
   // The tree logic will decide what to do based on these values.
