@@ -1,12 +1,12 @@
 #pragma once
 
-#include "behaviortree_cpp/condition_node.h"
+#include "behaviortree_cpp/action_node.h"
 #include <rclcpp/rclcpp.hpp>
 
 namespace slg_bt_plugins
 {
 
-class DumpBlackboardData : public BT::ConditionNode
+class DumpBlackboardData : public BT::SyncActionNode
 {
 public:
   DumpBlackboardData(const std::string & name,

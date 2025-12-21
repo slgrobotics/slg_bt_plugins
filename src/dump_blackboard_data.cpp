@@ -5,7 +5,7 @@ namespace slg_bt_plugins
 
 DumpBlackboardData::DumpBlackboardData(const std::string & name,
                 const BT::NodeConfiguration & config)
-: BT::ConditionNode(name, config)
+: BT::SyncActionNode(name, config)
 {
   if (!config.blackboard->get("node", node_)) {
     throw std::runtime_error(
@@ -83,7 +83,7 @@ BT::NodeStatus DumpBlackboardData::tick()
 
   RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, "[DumpBlackboardData] tick()  is_six_gesture: %s", is_six ? "true" : "false");
 
-  return BT::NodeStatus::FAILURE;
+  return BT::NodeStatus::SUCCESS;
 }
 
 }  // namespace slg_bt_plugins

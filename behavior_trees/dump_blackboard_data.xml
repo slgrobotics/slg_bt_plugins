@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="MainTree">
+    
+    <KeepRunningUntilFailure>
+      <!-- Note: KeepRunningUntilFailure allows exactly one child.
+                 The single child of KeepRunningUntilFailure is this Sequence -->
+      <Sequence name="MainLoop">
+
+        <!-- 1. Update the Blackboard.
+                FgsTopicToBlackboard always returns SUCCESS, so it doesn't block the loop.
+                The output ports must be primed with blackboard keys -->
+
+        <FgsTopicToBlackboard
+          topic_name="/bt/face_gesture_detect"
+          is_face_detected="{is_face_detected}"
+          face_yaw_error="{face_yaw_error}"
+          gesture="{gesture}"
+          is_stop_gesture="{is_stop_gesture}"
+          is_like_gesture="{is_like_gesture}"
+          is_ok_gesture="{is_ok_gesture}"
+          is_yes_gesture="{is_yes_gesture}"
+          is_six_gesture="{is_six_gesture}"
+        />
+
+        <!-- 2. Dump the data  
+                DumpBlackboardData always returns SUCCESS, so it doesn't block the loop -->
+
+        <DumpBlackboardData
+          is_face_detected="{is_face_detected}"
+          face_yaw_error="{face_yaw_error}"
+          gesture="{gesture}"
+          is_stop_gesture="{is_stop_gesture}"
+          is_like_gesture="{is_like_gesture}"
+          is_ok_gesture="{is_ok_gesture}"
+          is_yes_gesture="{is_yes_gesture}"
+          is_six_gesture="{is_six_gesture}"
+        />
+
+      </Sequence>
+    </KeepRunningUntilFailure>
+
+  </BehaviorTree>
+</root>
