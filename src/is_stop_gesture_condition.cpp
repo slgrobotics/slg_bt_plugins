@@ -70,7 +70,7 @@ BT::NodeStatus IsStopGesture::tick()
 
     if(gesture != "") {
         RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
-        "[IsStopGesture] tick() gesture: '%s' = %s", gesture.c_str(), is_stop ? "BT:SUCCESS" : "BT:FAILURE");
+        "[IsStopGesture] tick() gesture: '%s' = %s", gesture.c_str(), is_stop ? "true - BT:SUCCESS" : "false - BT:FAILURE");
     }
   } else {
     RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,"[IsStopGesture] tick()  gesture expired - BT:FAILURE");
@@ -83,6 +83,9 @@ BT::NodeStatus IsStopGesture::tick()
 
       return BT::NodeStatus::FAILURE;
   }
+
+  RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
+  "[IsStopGesture] tick() is_stop: %s", is_stop ? "true - BT:SUCCESS" : "false - BT:FAILURE");
 
 #endif // USE_RCLCPP_SUBSCRIPTIONS
 

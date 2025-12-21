@@ -55,7 +55,7 @@ BT::NodeStatus IsFaceDetected::tick()
 
     face_detected = false;
   } else {
-    RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, "[IsFaceDetected] tick()  face_detected: %s", face_detected ? "BT:SUCCESS" : "BT:FAILURE");
+    RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, "[IsFaceDetected] tick()  face_detected: %s", face_detected ? "true - BT:SUCCESS" : "false - BT:FAILURE");
   }
 #else // USE_RCLCPP_SUBSCRIPTIONS
 
@@ -66,7 +66,7 @@ BT::NodeStatus IsFaceDetected::tick()
       return BT::NodeStatus::FAILURE;
   }
 
-  RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, "[IsFaceDetected] tick()  face_detected: %s", face_detected ? "BT:SUCCESS" : "BT:FAILURE");
+  RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, "[IsFaceDetected] tick()  face_detected: %s", face_detected ? "true - BT:SUCCESS" : "false - BT:FAILURE");
 
 #endif // USE_RCLCPP_SUBSCRIPTIONS
 
