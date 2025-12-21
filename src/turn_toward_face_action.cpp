@@ -115,8 +115,8 @@ BT::NodeStatus TurnTowardFace::onRunning()
 
   if (!getInput("face_yaw_error", err_angle)) {
 
-      RCLCPP_WARN(node_->get_logger(), "[TurnTowardFace] onRunning() - missing face_yaw_error");
-      return BT::NodeStatus::FAILURE;
+      RCLCPP_WARN_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, "[TurnTowardFace] onRunning() - missing face_yaw_error");
+      return BT::NodeStatus::RUNNING; // stay in sequence. Is data pump working?
   }
 
 #endif // USE_RCLCPP_SUBSCRIPTIONS

@@ -44,6 +44,10 @@ public:
         "face_yaw_error",
         "an angle in radians to the face when detected, zero otherwise"),
 
+        BT::OutputPort<std::string>(
+        "gesture",
+        "actual gesture as detected by the perception adapter"),
+
         BT::OutputPort<bool>(
         "is_stop_gesture",
         "true if a STOP gesture is detected, false otherwise"),

@@ -89,6 +89,11 @@ BT::NodeStatus FgsTopicToBlackboard::tick()
         "[FgsTopicToBlackboard] tick() gesture: '%s'", gesture.c_str());
     }
 
+    if(std::abs(face_yaw_error) > 0.00001f) {
+        RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
+        "[FgsTopicToBlackboard] tick() face_yaw_error: '%.5f'", face_yaw_error);
+    }
+
     is_stop = (gesture == "STOP"); // gesture can be "STOP", "LIKE", "OK", "YES", "SIX" or empty string
     is_like = (gesture == "LIKE");
     is_ok = (gesture == "OK");
@@ -96,7 +101,7 @@ BT::NodeStatus FgsTopicToBlackboard::tick()
     is_six = (gesture == "SIX");
 
   } else {
-    RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,"[FgsTopicToBlackboard] tick()  face & gesture message stale or missing");
+    RCLCPP_WARN_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,"[FgsTopicToBlackboard] tick()  face & gesture message stale or missing");
   }
 
   // Note: the output values are set even if the message is stale or missing.
@@ -104,6 +109,8 @@ BT::NodeStatus FgsTopicToBlackboard::tick()
 
   setOutput("is_face_detected", is_face_detected);
   setOutput("face_yaw_error", face_yaw_error);
+
+  setOutput("gesture", gesture);
 
   setOutput("is_stop_gesture", is_stop);
   setOutput("is_like_gesture", is_like);
