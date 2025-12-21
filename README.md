@@ -1,10 +1,10 @@
-## slg_bt_plugins - a ROS2 package
+## ROS2/Nav2 Behavior Trees: Custom plugins package
 
-ROS2 Behavior Trees plugins for different topics
+ROS2 Behavior Trees plugins for bringing different ROS2 topics in the scope of BTs and other tasks.
 
 Currently works with [DFRobot AI Gesture and Face Detection Sensor package](https://github.com/slgrobotics/face_gesture_sensor)
 
-Please refer to [main project Wiki](https://github.com/slgrobotics/articubot_one/wiki/Behavior-Tree-for-Gesture-and-Face-Detection-Sensor)
+Please refer to [main project Wiki](https://github.com/slgrobotics/articubot_one/wiki/Behavior-Tree-for-Gesture-and-Face-Detection-Sensor) (*Seggy* robot)
 
 ---------------------
 
