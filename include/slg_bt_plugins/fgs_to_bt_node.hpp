@@ -40,35 +40,35 @@ public:
         "topic_name",
         "perception adapter topic name to subscribe to, usually '/bt/face_gesture_detect'"),
 
-        BT::OutputPort<bool>(
+      BT::OutputPort<bool>(
         "is_face_detected",
         "true if a face is detected, false otherwise"),
 
-        BT::OutputPort<float>(
+      BT::OutputPort<float>(
         "face_yaw_error",
         "an angle in radians to the face when detected, zero otherwise"),
 
-        BT::OutputPort<std::string>(
+      BT::OutputPort<std::string>(
         "gesture",
         "actual gesture as detected by the perception adapter"),
 
-        BT::OutputPort<bool>(
+      BT::OutputPort<bool>(
         "is_stop_gesture",
         "true if a STOP gesture is detected, false otherwise"),
 
-        BT::OutputPort<bool>(
+      BT::OutputPort<bool>(
         "is_like_gesture",
         "true if a LIKE gesture is detected, false otherwise"),
 
-        BT::OutputPort<bool>(
+      BT::OutputPort<bool>(
         "is_ok_gesture",
         "true if an OK gesture is detected, false otherwise"),
 
-        BT::OutputPort<bool>(
+      BT::OutputPort<bool>(
         "is_yes_gesture",
         "true if a YES gesture is detected, false otherwise"),
 
-        BT::OutputPort<bool>(
+      BT::OutputPort<bool>(
         "is_six_gesture",
         "true if a SIX gesture is detected, false otherwise")
     });

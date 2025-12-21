@@ -17,6 +17,7 @@ add_library(slg_bt_plugins SHARED
   src/turn_toward_face_action.cpp
   src/fgs_to_bt_node.cpp
   src/a_node_registration.cpp
+  src/dump_blackboard_data.cpp
 )
 
 # THIS IS THE KEY LINE TO MAKE THE BT_RegisterNodesFromPlugin SYMBOL VISIBLE

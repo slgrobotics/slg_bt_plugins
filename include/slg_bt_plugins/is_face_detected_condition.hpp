@@ -28,8 +28,8 @@ static BT::PortsList providedPorts()
     return BT::PortsList ({
       // Live data from the FgsTopicToBlackboard node
       BT::InputPort<bool>(
-      "is_face_detected", false,
-      "true if a face is detected, false otherwise")
+        "is_face_detected", false,
+        "true if a face is detected, false otherwise")
     });
   }
 #endif // USE_RCLCPP_SUBSCRIPTIONS
