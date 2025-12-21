@@ -77,7 +77,12 @@ BT::NodeStatus IsStopGesture::tick()
   }
 #else // USE_RCLCPP_SUBSCRIPTIONS
 
-  getInput("is_stop_gesture", is_stop);  // get the gesture from the blackboard
+  if (!getInput("is_stop_gesture", is_stop)) {  // get the gesture from the blackboard
+
+      RCLCPP_WARN_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, "[IsStopGesture] tick() - missing 'is_stop_gesture' input on blackboard - BT:FAILURE");
+
+      return BT::NodeStatus::FAILURE;
+  }
 
 #endif // USE_RCLCPP_SUBSCRIPTIONS
 

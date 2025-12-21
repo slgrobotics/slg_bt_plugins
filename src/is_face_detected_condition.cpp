@@ -59,7 +59,12 @@ BT::NodeStatus IsFaceDetected::tick()
   }
 #else // USE_RCLCPP_SUBSCRIPTIONS
 
-  getInput("is_face_detected", face_detected);
+  if (!getInput("is_face_detected", face_detected)) {
+
+      RCLCPP_WARN_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, "[IsFaceDetected] tick() - missing 'is_face_detected' input on blackboard - BT:FAILURE");
+
+      return BT::NodeStatus::FAILURE;
+  }
 
   RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, "[IsFaceDetected] tick()  face_detected: %s", face_detected ? "BT:SUCCESS" : "BT:FAILURE");
 

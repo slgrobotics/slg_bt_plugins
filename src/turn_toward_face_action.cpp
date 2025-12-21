@@ -77,7 +77,7 @@ BT::NodeStatus TurnTowardFace::onRunning()
   if (!getInput("angle_tolerance", angle_tolerance) ||
       !getInput("max_turn_rate", max_turn_rate)) {
 
-      RCLCPP_WARN(node_->get_logger(), "[TurnTowardFace] onRunning() - missing input parameters");
+      RCLCPP_WARN(node_->get_logger(), "[TurnTowardFace] onRunning() - missing input parameters in xml: 'angle_tolerance', 'max_turn_rate'");
       return BT::NodeStatus::FAILURE;
   }
 
@@ -115,7 +115,7 @@ BT::NodeStatus TurnTowardFace::onRunning()
 
   if (!getInput("face_yaw_error", err_angle)) {
 
-      RCLCPP_WARN_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, "[TurnTowardFace] onRunning() - missing face_yaw_error");
+      RCLCPP_WARN_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000, "[TurnTowardFace] onRunning() - missing 'face_yaw_error' input on blackboard");
       return BT::NodeStatus::RUNNING; // stay in sequence. Is data pump working?
   }
 

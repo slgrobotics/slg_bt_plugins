@@ -14,7 +14,10 @@ FgsTopicToBlackboard::FgsTopicToBlackboard(const std::string & name,
         "FgsTopicToBlackboard: missing 'node' on blackboard");
   }
 
-  getInput("topic_name", topic_name_);
+  if (!getInput("topic_name", topic_name_)) {
+    throw BT::RuntimeError(
+      "FgsTopicToBlackboard: Missing required input port [topic_name] in xml - usually '/bt/face_gesture_detect'");
+  }
 
   RCLCPP_INFO(node_->get_logger(), "[FgsTopicToBlackboard] constructor, topic: '%s'", topic_name_.c_str());
 
