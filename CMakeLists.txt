@@ -20,6 +20,11 @@ add_library(slg_bt_plugins SHARED
   src/fgs_to_bt_node.cpp
   src/dump_blackboard_data.cpp
   src/a_node_registration.cpp
+  src/is_true_condition.cpp
+  src/set_blackboard_bool_action.cpp
+  src/is_false_condition.cpp
+  src/set_blackboard_typed_actions.cpp
+  src/is_blackboard_string_equal_condition.cpp
 )
 
 # THIS IS THE KEY LINE TO MAKE THE BT_RegisterNodesFromPlugin SYMBOL VISIBLE

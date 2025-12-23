@@ -54,4 +54,57 @@
     </description>
   </class>
 
+  <class
+    name="slg_bt_plugins/SetBlackboardBool"
+    type="slg_bt_plugins::SetBlackboardBool"
+    base_class_type="BT::ActionNodeBase">
+    <description>
+      Writes a boolean value into the blackboard under 'output_key'.
+    </description>
+  </class>
+
+  <class
+    name="slg_bt_plugins/IsTrue"
+    type="slg_bt_plugins::IsTrue"
+    base_class_type="BT::ConditionNode">
+    <description>
+      Returns SUCCESS if input port 'key' (bool) is true.
+    </description>
+  </class>
+
+  <class
+    name="slg_bt_plugins/IsFalse"
+    type="slg_bt_plugins::IsFalse"
+    base_class_type="BT::ConditionNode">
+    <description>Returns SUCCESS if input port 'key' (bool) is false.</description>
+  </class>
+
+  <class
+    name="slg_bt_plugins/SetBlackboardInt"
+    type="slg_bt_plugins::SetBlackboardInt"
+    base_class_type="BT::ActionNodeBase">
+    <description>Writes an int value into the blackboard under 'output_key'.</description>
+  </class>
+
+  <class
+    name="slg_bt_plugins/SetBlackboardDouble"
+    type="slg_bt_plugins::SetBlackboardDouble"
+    base_class_type="BT::ActionNodeBase">
+    <description>Writes a double value into the blackboard under 'output_key'.</description>
+  </class>
+
+  <class
+    name="slg_bt_plugins/SetBlackboardString"
+    type="slg_bt_plugins::SetBlackboardString"
+    base_class_type="BT::ActionNodeBase">
+    <description>Writes a string value into the blackboard under 'output_key'.</description>
+  </class>
+
+  <class
+    name="slg_bt_plugins/IsBlackboardStringEqual"
+    type="slg_bt_plugins::IsBlackboardStringEqual"
+    base_class_type="BT::ConditionNode">
+    <description>Compares a blackboard string value (by key name) to a given literal string.</description>
+  </class>
+
 </library>
