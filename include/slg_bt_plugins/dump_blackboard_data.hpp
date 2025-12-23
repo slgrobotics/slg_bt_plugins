@@ -6,6 +6,9 @@
 namespace slg_bt_plugins
 {
 
+/** @brief This action node will dump the content of selected blackboard key/value pairs
+ *  to the console.
+ */
 class DumpBlackboardData : public BT::SyncActionNode
 {
 public:

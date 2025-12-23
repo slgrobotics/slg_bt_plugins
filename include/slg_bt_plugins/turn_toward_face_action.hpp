@@ -13,6 +13,13 @@
 namespace slg_bt_plugins
 {
 
+/**
+ * @brief This action node will turn the robot towards a detected human's face.
+ * 
+ * It uses the yaw error from the face detection system to adjust the robot's heading.
+ * The node will keep turning until the yaw error is within the specified tolerance.
+ * This is a stateful action node, meaning it will return RUNNING until it succeeds or is halted.
+ */
 class TurnTowardFace : public BT::StatefulActionNode
 {
 public:

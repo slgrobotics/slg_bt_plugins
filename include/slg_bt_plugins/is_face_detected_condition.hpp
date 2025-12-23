@@ -11,6 +11,13 @@
 namespace slg_bt_plugins
 {
 
+/**
+ * @brief Condition node that checks if a face is detected.
+ *
+ * This node can be used to check if a human's face is detected by the robot's sensors.
+ * It uses the `is_face_detected` input port to determine if a face is detected.
+ * If the face is detected, it returns `SUCCESS`; otherwise, it returns `FAILURE`.
+ */
 class IsFaceDetected : public BT::ConditionNode
 {
 public:

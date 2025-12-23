@@ -7,6 +7,15 @@
 namespace slg_bt_plugins
 {
 
+/** @brief A BehaviorTree action node that cancels a running Nav2 action.
+ *
+ * This node will attempt to cancel the specified Nav2 action by calling its
+ * `_action/cancel_goal` service. The action name and timeout for waiting for the
+ * service response can be specified as input ports.
+ * 
+ * It does the same as the following CLI command:
+ *     ros2 service call /navigate_to_pose/_action/cancel_goal action_msgs/srv/CancelGoal "{}"
+ */
 class CancelNavToPose : public BT::StatefulActionNode
 {
 public:

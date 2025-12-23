@@ -11,6 +11,13 @@
 namespace slg_bt_plugins
 {
 
+/**
+ * @brief Condition node that checks if a stop gesture is detected.
+ *
+ * This node can be used to check if a stop gesture is detected by the robot's sensors.
+ * It uses the `is_stop_gesture` input port to determine if a stop gesture is detected.
+ * It returns `SUCCESS` if a stop gesture is detected, and `FAILURE` otherwise.
+ */
 class IsStopGesture : public BT::ConditionNode
 {
 public:
