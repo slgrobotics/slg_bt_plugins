@@ -1,26 +1,57 @@
 <library path="slg_bt_plugins">
+
   <class
-    name="slg_bt_plugins::IsStopGesture"
+    name="slg_bt_plugins/IsStopGesture"
     type="slg_bt_plugins::IsStopGesture"
     base_class_type="BT::ConditionNode">
     <description>
-      Returns SUCCESS if /bt/gesture_command == "STOP"
+      Returns SUCCESS if blackboard port 'is_stop_gesture' is true.
     </description>
   </class>
+
   <class
-    name="slg_bt_plugins::IsFaceDetected"
+    name="slg_bt_plugins/IsFaceDetected"
     type="slg_bt_plugins::IsFaceDetected"
     base_class_type="BT::ConditionNode">
     <description>
-      Returns SUCCESS if face is detected
+      Returns SUCCESS if blackboard port 'is_face_detected' is true.
     </description>
   </class>
+
   <class
-    name="slg_bt_plugins::TurnTowardFace"
+    name="slg_bt_plugins/TurnTowardFace"
     type="slg_bt_plugins::TurnTowardFace"
-    base_class_type="BT::ActionNode">
+    base_class_type="BT::ActionNodeBase">
     <description>
-      Commands the robot to rotate toward the detected face
+      Commands the robot to rotate toward the detected face.
     </description>
   </class>
+
+  <class
+    name="slg_bt_plugins/CancelNavToPose"
+    type="slg_bt_plugins::CancelNavToPose"
+    base_class_type="BT::ActionNodeBase">
+    <description>
+      Cancels a Nav2 action goal by calling &lt;action_name&gt;/_action/cancel_goal (action_msgs/srv/CancelGoal).
+    </description>
+  </class>
+
+  <class
+    name="slg_bt_plugins/FgsTopicToBlackboard"
+    type="slg_bt_plugins::FgsTopicToBlackboard"
+    base_class_type="BT::ActionNodeBase">
+    <description>
+      Takes data from the FGS topic and writes it to blackboard ports.
+    </description>
+  </class>
+
+  <class
+    name="slg_bt_plugins/DumpBlackboardData"
+    type="slg_bt_plugins::DumpBlackboardData"
+    base_class_type="BT::ActionNodeBase">
+    <description>
+      Prints selected blackboard key/value pairs to the console.
+    </description>
+  </class>
+
 </library>

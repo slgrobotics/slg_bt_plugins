@@ -8,6 +8,7 @@ find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(action_msgs REQUIRED)
 
 include_directories(include)
 
@@ -15,9 +16,10 @@ add_library(slg_bt_plugins SHARED
   src/is_stop_gesture_condition.cpp
   src/is_face_detected_condition.cpp
   src/turn_toward_face_action.cpp
+  src/cancel_nav_to_pose.cpp
   src/fgs_to_bt_node.cpp
-  src/a_node_registration.cpp
   src/dump_blackboard_data.cpp
+  src/a_node_registration.cpp
 )
 
 # THIS IS THE KEY LINE TO MAKE THE BT_RegisterNodesFromPlugin SYMBOL VISIBLE
@@ -47,6 +49,7 @@ target_link_libraries(slg_bt_plugins PUBLIC
   ${pluginlib_TARGETS}
   ${sensor_msgs_TARGETS}
   ${geometry_msgs_TARGETS}
+  ${action_msgs_TARGETS}
   rclcpp::rclcpp
 )
 
@@ -65,8 +68,8 @@ install(FILES plugin_description.xml
   DESTINATION share/${PROJECT_NAME}
 )
 
-install(DIRECTORY include
-  DESTINATION share/${PROJECT_NAME}
+install(DIRECTORY include/
+  DESTINATION include/
 )
 
 ament_export_libraries(
