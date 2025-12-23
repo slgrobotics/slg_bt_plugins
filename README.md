@@ -46,6 +46,151 @@ Data Streams	 FAILURE	          FAILURE	         Normal Navigation (Safe default
 
 A more advanced and fully functional tree is described [here](https://github.com/slgrobotics/articubot_one/wiki/Behavior-Tree-for-Gesture-and-Face-Detection-Sensor#example-behavior-tree).
 
+--------------------
+
+## Additional General Purpose BT nodes
+
+### Typed Blackboard Utility Nodes
+
+This document describes the **strongly-typed Blackboard helper nodes** provided in `slg_bt_plugins`.
+These nodes are designed to make Behavior Trees easier to read, safer to maintain, and more expressive,
+especially when implementing **latches**, **state flags**, and **symbolic decisions** (such as gestures).
+
+All nodes follow the conventions used throughout `slg_bt_plugins`:
+
+- Access the ROS node via the BT blackboard (`"node"`)
+- Use throttled ROS logging
+- Deterministic SUCCESS / FAILURE semantics
+- No implicit string-to-type conversions
+
+---
+
+## Contents
+
+- Conditions
+  - [`IsTrue`](#istrue)
+  - [`IsFalse`](#isfalse)
+  - [`IsBlackboardStringEqual`](#isblackboardstringequal)
+- Actions (Blackboard setters)
+  - [`SetBlackboardBool`](#setblackboardbool)
+  - [`SetBlackboardInt`](#setblackboardint)
+  - [`SetBlackboardDouble`](#setblackboarddouble)
+  - [`SetBlackboardString`](#setblackboardstring)
+- [Common Behavior Tree Patterns](#common-behavior-tree-patterns)
+
+---
+
+## Conditions
+
+### IsTrue
+
+Returns **SUCCESS** if a boolean input value is `true`.
+
+This node is typically used to:
+- check latch flags
+- guard execution paths
+- improve readability compared to `Inverter`-based logic
+
+#### Ports
+
+| Name | Type | Description |
+|-----|------|-------------|
+| `key` | `bool` | Boolean value (usually from blackboard via `{}`) |
+
+#### Behavior
+
+- SUCCESS if `key == true`
+- FAILURE if `key == false` or missing
+
+#### Example
+
+```
+<IsTrue key="{face_pause_active}"/>
+```
+
+### IsFalse
+
+**Condition node** that returns **SUCCESS** when a boolean input value is `false`.
+
+Useful for:
+- clearing latches
+- expressing “not detected” conditions
+- simplifying inverted logic
+
+### Ports
+
+| Name | Type | Description |
+|-----|------|-------------|
+| `key` | `bool` | Boolean value (usually from blackboard via `{}`) |
+
+### Behavior
+
+- SUCCESS if `key == false`
+- FAILURE if `key == true` or missing
+
+### Example
+
+```
+<IsFalse key="{is_face_detected}"/>
+```
+
+### IsBlackboardStringEqual
+
+**Condition node** that compares a string stored on the blackboard to a **literal string**.
+
+Unlike most BT nodes, the `key` port refers to a **blackboard key name**, not a `{}` substitution.
+This makes intent explicit and avoids ambiguity.
+
+Typical use cases:
+- gesture recognition (`STOP`, `OK`, `YES`)
+- mode or state matching
+- symbolic branching in BTs
+
+### Ports
+
+| Name | Type | Description |
+|-----|------|-------------|
+| `key` | `string` | Blackboard key name (e.g. `"gesture"`) |
+| `compare_to_string` | `string` | Literal string to compare against |
+
+### Behavior
+
+- SUCCESS if `blackboard[key] == compare_to_string`
+- FAILURE otherwise (including missing key)
+
+### Example
+
+```
+<IsBlackboardStringEqual key="gesture" compare_to_string="STOP"/>
+```
+
+### SetBlackboardBool
+
+**Action node** that writes a boolean value into the Behavior Tree blackboard.
+
+Common uses:
+- latch flags (e.g. `face_pause_active`)
+- STOP / resume states
+- feature enable/disable toggles
+
+### Ports
+
+| Name | Type | Description |
+|-----|------|-------------|
+| `output_key` | `string` | Blackboard key name to write |
+| `value` | `bool` | Boolean value |
+
+### Behavior
+
+- Writes the value to the blackboard
+- Returns SUCCESS on success
+
+### Example
+
+```
+<SetBlackboardBool output_key="face_pause_active" value="true"/>
+```
+
 ---------------------
 
 [main project Wiki](https://github.com/slgrobotics/articubot_one/wiki/Behavior-Tree-for-Gesture-and-Face-Detection-Sensor)
