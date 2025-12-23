@@ -44,6 +44,8 @@ Data Streams	 FAILURE	          FAILURE	         Normal Navigation (Safe default
  Cease
 ```
 
+A more advanced and fully functional tree is described [here](https://github.com/slgrobotics/articubot_one/wiki/Behavior-Tree-for-Gesture-and-Face-Detection-Sensor#example-behavior-tree).
+
 ---------------------
 
 [main project Wiki](https://github.com/slgrobotics/articubot_one/wiki/Behavior-Tree-for-Gesture-and-Face-Detection-Sensor)
