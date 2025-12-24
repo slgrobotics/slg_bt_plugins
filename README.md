@@ -2,7 +2,7 @@
 
 ROS2 Behavior Trees plugins for bringing different ROS2 topics in the scope of BTs and other tasks.
 
-Currently works with [DFRobot AI Gesture and Face Detection Sensor package](https://github.com/slgrobotics/face_gesture_sensor) and also supplies BT Nodes for general use.
+Currently works with [DFRobot AI Gesture and Face Detection Sensor package](https://github.com/slgrobotics/face_gesture_sensor) and also supplies [BT Nodes for general use](#additional-general-purpose-bt-nodes).
 
 Please refer to [main project Wiki](https://github.com/slgrobotics/articubot_one/wiki/Behavior-Tree-for-Gesture-and-Face-Detection-Sensor) (*Seggy* robot)
 
