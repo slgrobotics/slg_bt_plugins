@@ -63,24 +63,22 @@ All nodes follow the conventions used throughout `slg_bt_plugins`:
 - Deterministic SUCCESS / FAILURE semantics
 - No implicit string-to-type conversions
 
----
-
 ## Contents
 
-- Conditions
+1. Conditions
   - [`IsTrue`](#istrue)
   - [`IsFalse`](#isfalse)
   - [`IsBlackboardStringEqual`](#isblackboardstringequal)
-- Actions (Blackboard setters)
+2. Actions (Blackboard setters)
   - [`SetBlackboardBool`](#setblackboardbool)
   - [`SetBlackboardInt`](#setblackboardint)
   - [`SetBlackboardDouble`](#setblackboarddouble)
   - [`SetBlackboardString`](#setblackboardstring)
-- [Common Behavior Tree Patterns](#common-behavior-tree-patterns)
+3. [Common Behavior Tree Patterns](https://chatgpt.com/s/t_694b308d7e048191a74ca1d165d6d1b0) [ChatGPT.com generated]
 
----
+---------------
 
-## Conditions
+## 1. Conditions
 
 ### IsTrue
 
@@ -117,18 +115,18 @@ Useful for:
 - expressing “not detected” conditions
 - simplifying inverted logic
 
-### Ports
+#### Ports
 
 | Name | Type | Description |
 |-----|------|-------------|
 | `key` | `bool` | Boolean value (usually from blackboard via `{}`) |
 
-### Behavior
+#### Behavior
 
 - SUCCESS if `key == false`
 - FAILURE if `key == true` or missing
 
-### Example
+#### Example
 
 ```
 <IsFalse key="{is_face_detected}"/>
@@ -146,23 +144,25 @@ Typical use cases:
 - mode or state matching
 - symbolic branching in BTs
 
-### Ports
+#### Ports
 
 | Name | Type | Description |
 |-----|------|-------------|
 | `key` | `string` | Blackboard key name (e.g. `"gesture"`) |
 | `compare_to_string` | `string` | Literal string to compare against |
 
-### Behavior
+#### Behavior
 
 - SUCCESS if `blackboard[key] == compare_to_string`
 - FAILURE otherwise (including missing key)
 
-### Example
+#### Example
 
 ```
 <IsBlackboardStringEqual key="gesture" compare_to_string="STOP"/>
 ```
+
+## 2. Actions (Blackboard setters)
 
 ### SetBlackboardBool
 
@@ -173,19 +173,19 @@ Common uses:
 - STOP / resume states
 - feature enable/disable toggles
 
-### Ports
+#### Ports
 
 | Name | Type | Description |
 |-----|------|-------------|
 | `output_key` | `string` | Blackboard key name to write |
 | `value` | `bool` | Boolean value |
 
-### Behavior
+#### Behavior
 
 - Writes the value to the blackboard
 - Returns SUCCESS on success
 
-### Example
+#### Example
 
 ```
 <SetBlackboardBool output_key="face_pause_active" value="true"/>
@@ -200,19 +200,19 @@ Useful for:
 - retry counts
 - discrete mode identifiers
 
-### Ports
+#### Ports
 
 | Name | Type | Description |
 |-----|------|-------------|
 | `output_key` | `string` | Blackboard key name to write |
 | `value` | `int` | Integer value |
 
-### Behavior
+#### Behavior
 
 - Writes the value to the blackboard
 - Returns SUCCESS on success
 
-### Example
+#### Example
 
 ```
 <SetBlackboardInt output_key="retry_count" value="3"/>
@@ -228,19 +228,19 @@ Typical uses:
 - timing thresholds
 - numeric configuration parameters
 
-### Ports
+#### Ports
 
 | Name | Type | Description |
 |-----|------|-------------|
 | `output_key` | `string` | Blackboard key name to write |
 | `value` | `double` | Double value |
 
-### Behavior
+#### Behavior
 
 - Writes the value to the blackboard
 - Returns SUCCESS on success
 
-### Example
+#### Example
 
 ```
 <SetBlackboardDouble output_key="yaw_tolerance" value="0.15"/>
@@ -255,19 +255,19 @@ Typical uses:
 - state labels
 - symbolic modes
 
-### Ports
+#### Ports
 
 | Name | Type | Description |
 |-----|------|-------------|
 | `output_key` | `string` | Blackboard key name to write |
 | `value` | `string` | String value |
 
-### Behavior
+#### Behavior
 
 - Writes the value to the blackboard
 - Returns SUCCESS on success
 
-### Example
+#### Example
 
 ```
 <SetBlackboardString output_key="gesture" value="STOP"/>
