@@ -191,6 +191,88 @@ Common uses:
 <SetBlackboardBool output_key="face_pause_active" value="true"/>
 ```
 
+### SetBlackboardInt
+
+**Action node** that writes an integer value into the Behavior Tree blackboard.
+
+Useful for:
+- counters
+- retry counts
+- discrete mode identifiers
+
+### Ports
+
+| Name | Type | Description |
+|-----|------|-------------|
+| `output_key` | `string` | Blackboard key name to write |
+| `value` | `int` | Integer value |
+
+### Behavior
+
+- Writes the value to the blackboard
+- Returns SUCCESS on success
+
+### Example
+
+```
+<SetBlackboardInt output_key="retry_count" value="3"/>
+```
+
+### SetBlackboardDouble
+
+**Action node** that writes a double-precision floating-point value into the Behavior Tree blackboard.
+
+Typical uses:
+- tolerances
+- gains
+- timing thresholds
+- numeric configuration parameters
+
+### Ports
+
+| Name | Type | Description |
+|-----|------|-------------|
+| `output_key` | `string` | Blackboard key name to write |
+| `value` | `double` | Double value |
+
+### Behavior
+
+- Writes the value to the blackboard
+- Returns SUCCESS on success
+
+### Example
+
+```
+<SetBlackboardDouble output_key="yaw_tolerance" value="0.15"/>
+```
+
+### SetBlackboardString
+
+**Action node** that writes a string value into the Behavior Tree blackboard.
+
+Typical uses:
+- gesture names (`STOP`, `OK`, `YES`)
+- state labels
+- symbolic modes
+
+### Ports
+
+| Name | Type | Description |
+|-----|------|-------------|
+| `output_key` | `string` | Blackboard key name to write |
+| `value` | `string` | String value |
+
+### Behavior
+
+- Writes the value to the blackboard
+- Returns SUCCESS on success
+
+### Example
+
+```
+<SetBlackboardString output_key="gesture" value="STOP"/>
+```
+
 ---------------------
 
 [main project Wiki](https://github.com/slgrobotics/articubot_one/wiki/Behavior-Tree-for-Gesture-and-Face-Detection-Sensor)
