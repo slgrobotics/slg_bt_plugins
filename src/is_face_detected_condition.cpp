@@ -1,5 +1,7 @@
 #include "slg_bt_plugins/is_face_detected_condition.hpp"
 
+#include <rclcpp/executors/single_threaded_executor.hpp>
+
 namespace slg_bt_plugins
 {
 
@@ -36,7 +38,10 @@ BT::NodeStatus IsFaceDetected::tick()
 #ifdef USE_RCLCPP_SUBSCRIPTIONS
   // The subscription happens, but messages are queued until the node is spun.
   // So, we have to manually process any waiting messages for the BT node:
-  rclcpp::spin_some(node_->get_node_base_interface()); // executes any pending callbacks on that node
+  rclcpp::ExecutorOptions options;
+  options.context = node_->get_node_base_interface()->get_context();
+  rclcpp::executors::SingleThreadedExecutor executor(options);
+  executor.spin_node_some(node_->get_node_base_interface());
   
   rclcpp::Time msg_timestamp;
 

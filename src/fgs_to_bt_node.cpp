@@ -1,5 +1,7 @@
 #include "slg_bt_plugins/fgs_to_bt_node.hpp"
 
+#include <rclcpp/executors/single_threaded_executor.hpp>
+
 namespace slg_bt_plugins
 {
 
@@ -52,7 +54,10 @@ BT::NodeStatus FgsTopicToBlackboard::tick()
 {
   // The subscription happens, but messages are queued until the node is spun.
   // So, we have to manually process any waiting messages for the BT node:
-  rclcpp::spin_some(node_->get_node_base_interface());  // executes any pending callbacks on that node
+  rclcpp::ExecutorOptions options;
+  options.context = node_->get_node_base_interface()->get_context();
+  rclcpp::executors::SingleThreadedExecutor executor(options);
+  executor.spin_node_some(node_->get_node_base_interface());
   
   bool valid = false;
   bool is_face_detected = false;
