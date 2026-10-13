@@ -17,6 +17,8 @@ Please refer to [main project Wiki](https://github.com/slgrobotics/articubot_one
 
 **Data source** This package relies on */bt/face_gesture_detect* topic published by [DFRobot AI Gesture and Face Detection Sensor package](https://github.com/slgrobotics/face_gesture_sensor)
 
+**Testing: live robot and in simulation** Please review [this guide](https://github.com/slgrobotics/slg_bt_plugins/blob/main/test/README.md).
+
 **Data Dropouts:** If the last message received is older than a specific threshold (e.g., 0.5s),
 the condition nodes should automatically return FAILURE
 to ensure the robot reverts to its default navigation state instead of "freezing" on old data.
