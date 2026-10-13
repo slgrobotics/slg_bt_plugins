@@ -3,7 +3,7 @@
 
   <!--
   Note: this is a NO-PUMP version of the tree, meaning it does not use a FgsTopicToBlackboard "data pump" node.
-        Use it if you have "USE_RCLCPP_SUBSCRIPTIONS" in CMakeLists.txt file.
+        Build with the CMake option USE_RCLCPP_SUBSCRIPTIONS=ON to use it.
   -->
  
   <!-- Requires USE_RCLCPP_SUBSCRIPTIONS=ON. Continuous standalone turning demo. -->

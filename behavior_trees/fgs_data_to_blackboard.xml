@@ -8,26 +8,25 @@
         - Verify Blackboard updates & message freshness from tracing
   -->
 
-    <Sequence name="DataPumpRoot">
-
-      <!-- Pump perception data into the Blackboard.
-           Input port specifies topic published by https://github.com/slgrobotics/face_gesture_sensor
-           The output ports must be primed with blackboard keys -->
-
-
   <BehaviorTree ID="MainTree">
     <KeepRunningUntilFailure>
-      <FgsTopicToBlackboard
-        topic_name="/bt/face_gesture_detect"
-        is_face_detected="{is_face_detected}"
-        face_yaw_error="{face_yaw_error}"
-        gesture="{gesture}"
-        is_stop_gesture="{is_stop_gesture}"
-        is_like_gesture="{is_like_gesture}"
-        is_ok_gesture="{is_ok_gesture}"
-        is_yes_gesture="{is_yes_gesture}"
-        is_six_gesture="{is_six_gesture}"
-      />
+      <Sequence name="DataPumpRoot">
+
+        <!-- Pump perception data into the Blackboard.
+             Input port specifies topic published by https://github.com/slgrobotics/face_gesture_sensor
+             The output ports must be primed with blackboard keys -->
+        <FgsTopicToBlackboard
+          topic_name="/bt/face_gesture_detect"
+          is_face_detected="{is_face_detected}"
+          face_yaw_error="{face_yaw_error}"
+          gesture="{gesture}"
+          is_stop_gesture="{is_stop_gesture}"
+          is_like_gesture="{is_like_gesture}"
+          is_ok_gesture="{is_ok_gesture}"
+          is_yes_gesture="{is_yes_gesture}"
+          is_six_gesture="{is_six_gesture}"
+        />
+      </Sequence>
     </KeepRunningUntilFailure>
   </BehaviorTree>
 </root>
