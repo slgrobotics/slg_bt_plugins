@@ -13,6 +13,17 @@ Please refer to [main project Wiki](https://github.com/slgrobotics/articubot_one
 
 ---------------------
 
+> **Tip** This *"main"* branch was updated to work in ROS 2 Lyrical.
+> For *Jazzy* and *Kilted* clone it at hash `1afbbf18a95d152f89a9f8e3da2571333d7e77da` (Oct 5,2026 9:25 PM CST):
+> ```
+> cd ~/robot_ws/src
+> git clone https://github.com/slgrobotics/slg_bt_plugins.git
+> cd slg_bt_plugins
+> git checkout 1afbbf18a95d152f89a9f8e3da2571333d7e77da
+> ```
+
+---------------------
+
 ## BT Nodes for DFRobot *AI Gesture and Face Detection Sensor*
 
 **Data source** This package relies on */bt/face_gesture_detect* topic published by [DFRobot AI Gesture and Face Detection Sensor package](https://github.com/slgrobotics/face_gesture_sensor)
