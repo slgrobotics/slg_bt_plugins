@@ -5,6 +5,23 @@ Back to package [README](https://github.com/slgrobotics/slg_bt_plugins/blob/main
 
 -----------------------------
 
+## Testing Seggy’s Behavior Tree - live robot
+
+1. Build and source the updated workspace, then launch Seggy in hardware mode with `use_sim_time:=false`. Confirm Nav2 loads `face_aware_nav.xml` and the face/gesture sensor publishes `/bt/face_gesture_detect`.
+2. In a clear area set a nearby **Nav2 Goal** in RViz and confirm normal navigation.
+3. Present your face: Seggy should pause navigation and turn toward you. Once aligned, it should remain paused while your face is detected.
+4. Move out of view: navigation should resume after detection clears or expires.
+5. Show **STOP gesture** while Seggy navigates: the goal should be canceled. Removing the gesture must not resume it; send a new goal.
+6. Verify cancellation with:
+
+   ```bash
+   ros2 topic echo /navigate_to_pose/_action/status
+   ```
+
+   Status **`5`** means **CANCELED**.
+
+For synthetic sensor tests on hardware, omit `--use-sim-time` and disable the real sensor publisher while injecting messages.
+
 ## Testing Seggy’s Behavior Tree in Simulation
 
 Publish synthetic sensor messages to `/bt/face_gesture_detect` using `sensor_msgs/msg/Illuminance`.
