@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4" main_tree_to_execute="MainTree">
-
   <!--
   see https://chatgpt.com/s/t_69405ba56e04819185f0ac4cf0a9cde6
       https://github.com/slgrobotics/face_gesture_sensor
@@ -26,31 +25,32 @@
         Use it if you have "USE_RCLCPP_SUBSCRIPTIONS" in CMakeLists.txt file.
   -->
 
+  <!-- Requires USE_RCLCPP_SUBSCRIPTIONS=ON. Select this as the BT Navigator NavigateToPose tree.
+       STOP cancels the goal; face detection pauses translation and turns. -->
+  <include ros_pkg="nav2_bt_navigator" path="behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml"/>
   <BehaviorTree ID="MainTree">
-
-    <Sequence name="Root">
-
-      <!-- Highest priority: STOP gesture cancels navigation -->
-      <ReactiveFallback name="TopLevel">
-
-        <Sequence name="StopGestureSequence">
+      <ReactiveFallback name="CancelOrTurnOrNavigate">
+        <!-- Sequence remembers STOP once detected, even if the gesture clears.
+             Retry cancellation without resuming motion. Stay RUNNING after
+             acceptance until the navigator processes its cancellation request. -->
+        <Sequence name="CancelOnStop">
           <IsStopGesture/>
-          <CancelControl/>
+          <RetryUntilSuccessful num_attempts="-1">
+            <CancelNavToPose action_name="navigate_to_pose" timeout_ms="500"/>
+          </RetryUntilSuccessful>
+          <KeepRunningUntilFailure>
+            <AlwaysSuccess/>
+          </KeepRunningUntilFailure>
         </Sequence>
-
-        <!-- Next priority: Face detected - turn toward the person -->
-        <Sequence name="FaceDetectedSequence">
+        <!-- Alignment also remains RUNNING so it cannot report goal success.
+             Recheck the face every tick and resume navigation when it disappears. -->
+        <ReactiveSequence name="PauseAndTurnWhileFaceDetected">
           <IsFaceDetected/>
-          <TurnTowardFace angle_tolerance="0.1" max_turn_rate="0.5"/>
-        </Sequence>
-
-        <!-- Default behavior: normal Nav2 navigation -->
-        <NavigateToPose/>
-
+          <KeepRunningUntilFailure>
+            <TurnTowardFace angle_tolerance="0.1" max_turn_rate="0.5"/>
+          </KeepRunningUntilFailure>
+        </ReactiveSequence>
+        <SubTree ID="NavigateToPoseWReplanningAndRecovery" _autoremap="true"/>
       </ReactiveFallback>
-
-    </Sequence>
-
   </BehaviorTree>
-
 </root>

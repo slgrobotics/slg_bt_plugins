@@ -1,54 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root BTCPP_format="4">
+<root BTCPP_format="4" main_tree_to_execute="MainTree">
+  <!-- Standalone perception/turning demo, despite the historical filename.
+       This tree does not execute navigation goals. STOP inhibits turning. -->
   <BehaviorTree ID="MainTree">
-    <!-- 
-      failure_count="2": The Parallel returns SUCCESS if at least 2 children succeeds.
-      success_count="2": The Parallel returns FAILURE if at least 2 children fail.
-    -->
-    <Parallel failure_count="2" success_count="2">
-      
-      <!-- 1. Background Data Pump: Runs constantly -->
+    <ReactiveSequence name="PumpAndReact">
+      <FgsTopicToBlackboard
+        topic_name="/bt/face_gesture_detect"
+        is_face_detected="{is_face_detected}"
+        face_yaw_error="{face_yaw_error}"
+        gesture="{gesture}"
+        is_stop_gesture="{is_stop_gesture}"
+        is_like_gesture="{is_like_gesture}"
+        is_ok_gesture="{is_ok_gesture}"
+        is_yes_gesture="{is_yes_gesture}"
+        is_six_gesture="{is_six_gesture}"
+      />
       <KeepRunningUntilFailure>
-
-        <Sequence name="DataPumpRoot">
-
-          <!-- Pump perception data into the Blackboard -->
-          <!-- MAP OUTPUTS TO BLACKBOARD KEYS -->
-          <FgsTopicToBlackboard
-            topic_name="/bt/face_gesture_detect"
-            is_face_detected="{is_face_detected}"
-            face_yaw_error="{face_yaw_error}"
-            gesture="{gesture}"
-            is_stop_gesture="{is_stop_gesture}"
-            is_like_gesture="{is_like_gesture}"
-            is_ok_gesture="{is_ok_gesture}"
-            is_yes_gesture="{is_yes_gesture}"
-            is_six_gesture="{is_six_gesture}"
-          />
-          <!-- Always succeed so the Sequence keeps ticking -->
-          <AlwaysSuccess/>
-
-        </Sequence>
-
+        <ReactiveFallback name="StopOrTurnOrIdle">
+          <!-- STOP takes priority and halts a running turn. -->
+          <IsStopGesture is_stop_gesture="{is_stop_gesture}"/>
+          <ReactiveSequence name="TurnWhileFaceDetected">
+            <IsFaceDetected is_face_detected="{is_face_detected}"/>
+            <TurnTowardFace angle_tolerance="0.1" max_turn_rate="0.5" is_face_detected="{is_face_detected}" face_yaw_error="{face_yaw_error}"/>
+          </ReactiveSequence>
+          <AlwaysSuccess name="Idle"/>
+        </ReactiveFallback>
       </KeepRunningUntilFailure>
-
-      <!-- 2. Face Reaction Logic: Doesn't kill the tree if face is missing -->
-      <KeepRunningUntilFailure>
-
-          <Fallback name="FaceReactionLogic">
-
-            <Sequence name="TurnIfDetected">
-              <IsFaceDetected is_face_detected="{is_face_detected}"/>
-              <TurnTowardFace angle_tolerance="0.1" max_turn_rate="0.5" is_face_detected="{is_face_detected}" face_yaw_error="{face_yaw_error}"/>
-            </Sequence>
-
-            <!-- If IsFaceDetected fails, this branch succeeds so the tree keeps running -->
-            <AlwaysSuccess/>
-
-          </Fallback>
-
-      </KeepRunningUntilFailure>
-
-    </Parallel>
+    </ReactiveSequence>
   </BehaviorTree>
 </root>

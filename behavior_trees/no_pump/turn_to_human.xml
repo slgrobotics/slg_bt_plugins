@@ -5,33 +5,19 @@
   Note: this is a NO-PUMP version of the tree, meaning it does not use a FgsTopicToBlackboard "data pump" node.
         Use it if you have "USE_RCLCPP_SUBSCRIPTIONS" in CMakeLists.txt file.
   -->
-
+ 
+  <!-- Requires USE_RCLCPP_SUBSCRIPTIONS=ON. Continuous standalone turning demo. -->
   <BehaviorTree ID="MainTree">
-    <!-- This decorator ensures the tree never stops. 
-         If children return SUCCESS, it restarts them immediately. -->
-    <KeepRunningUntilFailure>
-      
-      <ReactiveFallback name="TopLevel">
-        
-        <!-- Priority 1: STOP gesture -->
-        <Sequence name="StopGestureSequence">
+      <KeepRunningUntilFailure>
+        <ReactiveFallback name="StopOrTurnOrIdle">
+          <!-- STOP takes priority and halts a running turn. -->
           <IsStopGesture/>
-          <CancelControl/>
-          <!-- Return failure so the loop continues to check other nodes -->
-          <!--AlwaysFailure/ -->
-        </Sequence>
-
-        <!-- Priority 2: Turn toward face -->
-        <Sequence name="FaceDetectedSequence">
-          <IsFaceDetected/>
-          <TurnTowardFace angle_tolerance="0.1" max_turn_rate="0.5"/>
-        </Sequence>
-
-        <!-- Priority 3: Idle if nothing is happening -->
-        <AlwaysSuccess name="Idle"/>
-
-      </ReactiveFallback>
-
-    </KeepRunningUntilFailure>
+          <ReactiveSequence name="TurnWhileFaceDetected">
+            <IsFaceDetected/>
+            <TurnTowardFace angle_tolerance="0.1" max_turn_rate="0.5"/>
+          </ReactiveSequence>
+          <AlwaysSuccess name="Idle"/>
+        </ReactiveFallback>
+      </KeepRunningUntilFailure>
   </BehaviorTree>
 </root>

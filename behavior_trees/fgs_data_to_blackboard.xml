@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4" main_tree_to_execute="MainTree">
+  <!-- Continuous diagnostic tree; halt it explicitly to stop monitoring.
 
-  <BehaviorTree ID="MainTree">
-
-    <!--
       This tree exists ONLY to:
         - Spin the BT
         - Tick FgsTopicToBlackboard continuously
         - Verify Blackboard updates & message freshness from tracing
-    -->
+  -->
 
     <Sequence name="DataPumpRoot">
 
       <!-- Pump perception data into the Blackboard.
            Input port specifies topic published by https://github.com/slgrobotics/face_gesture_sensor
            The output ports must be primed with blackboard keys -->
+
+
+  <BehaviorTree ID="MainTree">
+    <KeepRunningUntilFailure>
       <FgsTopicToBlackboard
         topic_name="/bt/face_gesture_detect"
         is_face_detected="{is_face_detected}"
@@ -26,12 +28,6 @@
         is_yes_gesture="{is_yes_gesture}"
         is_six_gesture="{is_six_gesture}"
       />
-
-      <!-- Always succeed so the Sequence keeps ticking. The FgsTopicToBlackboard always succeeds anyway. -->
-      <AlwaysSuccess/>
-
-    </Sequence>
-
+    </KeepRunningUntilFailure>
   </BehaviorTree>
-
 </root>

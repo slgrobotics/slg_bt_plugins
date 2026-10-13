@@ -21,7 +21,7 @@ Please refer to [main project Wiki](https://github.com/slgrobotics/articubot_one
 the condition nodes should automatically return FAILURE
 to ensure the robot reverts to its default navigation state instead of "freezing" on old data.
 
-**Data Pump vs. Topic subscriptions** There is a "USE_RCLCPP_SUBSCRIPTIONS" compile condition in CMakeLists.txt, off by default:
+**Data Pump vs. Topic subscriptions** The `USE_RCLCPP_SUBSCRIPTIONS` CMake option is off by default:
 - When defined, all BT plugins subscribe individually to the */bt/face_gesture_detect* topic and process data internally (not recommended).
 - When not defined, a single *FgsTopicToBlackboard* node is responsible for subscription and data preprocessing. It puts all data on the BT Blackboard. This simplifies code for other plugins.
 
@@ -36,18 +36,62 @@ subscriptions, and service clients. This version requires Lyrical; the previous
 
 ### Sample behavior trees
 
-There are several BTs in the "*behavior_trees*" directory. 
+The XML files are installed to `share/slg_bt_plugins/behavior_trees`.
 
-Here is and example of Groot2 screen, while monitoring *behavior_trees/nav_to_stop.xml* tree:
+| Tree | Build mode | Purpose |
+|------|------------|---------|
+| `fgs_data_to_blackboard.xml` | Either | Continuous perception pump |
+| `dump_blackboard_data.xml` | Either | Continuous perception pump and logging |
+| `minimal_pump.xml` | Default | Continuous pump and face condition tracing |
+| `nav_to_stop.xml` | Default | Standalone turning demo; STOP inhibits turning (historical filename) |
+| `face_aware_nav.xml` | Default | Navigation with perception pump, STOP cancellation, and face alignment |
+| `no_pump/turn_to_human.xml` | Subscriptions | Standalone turning demo; STOP inhibits turning |
+| `no_pump/face_aware_nav.xml` | Subscriptions | Navigation with individual subscriptions |
 
-<img width="1881" height="1331" alt="Screenshot from 2025-12-21 14-21-43" src="https://github.com/user-attachments/assets/2c6baad1-e4ab-4ef0-8c8e-eb1e38caa183" />
+Build subscription mode with:
+
+```bash
+colcon build --packages-select slg_bt_plugins --cmake-args -DUSE_RCLCPP_SUBSCRIPTIONS=ON
+```
+
+Use `-DUSE_RCLCPP_SUBSCRIPTIONS=OFF` to return to the default mode. The trees
+with blackboard input mappings require the default mode; the `no_pump` trees
+require subscription mode.
+
+For the default build, select the navigation tree in the BT Navigator parameters:
+
+```yaml
+default_nav_to_pose_bt_xml: "$(find-pkg-share slg_bt_plugins)/behavior_trees/face_aware_nav.xml"
+plugin_lib_names: ["slg_bt_plugins"]
+```
+
+Keep any other custom libraries in `plugin_lib_names`. Lyrical loads its standard
+Nav2 BT libraries automatically. The navigation examples include Nav2's installed
+`NavigateToPoseWReplanningAndRecovery` subtree with the goal/path blackboard
+entries shared through `_autoremap`. They do not send recursive NavigateToPose
+goals. The stock subtree expects the usual configured planner/controller IDs.
+
+STOP takes priority over face alignment and cancels the NavigateToPose goal.
+Once STOP is detected, the cancellation branch stays selected even if the gesture
+clears. It halts active navigation/turning, retries the cancellation service on
+failure, and remains RUNNING until Nav2 processes the cancellation. Clearing STOP
+does not resume the canceled goal; send a new goal to navigate again. The relative
+`navigate_to_pose` action name respects the robot namespace. Cancellation applies
+to all goals on that action server, matching the CancelNavToPose plugin's contract.
+
+Face detection still pauses translation and aligns with the face. Alignment stays
+RUNNING even after reaching tolerance; navigation resumes when the face disappears.
+Only the stock navigation subtree reports normal goal completion or failure.
+
+The diagnostic and standalone turning trees run continuously until explicitly
+halted. They are not navigation goal trees.
 
 ### Summary of Behavioral Logic (example)
 
 ```
 Scenario	    IsStopGesture	    IsFaceDetected	   Resulting Behavior
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Active Stop 	 SUCCESS	          (Ignored)	       Stops Robot (CancelControl)
+Active Stop 	 SUCCESS	          (Ignored)	       Cancels navigation / inhibits turning
  Gesture
 
 Face Seen,	     FAILURE	          SUCCESS	         Turns toward person (TurnTowardFace)

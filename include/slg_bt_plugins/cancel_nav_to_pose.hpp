@@ -4,6 +4,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <nav2_ros_common/lifecycle_node.hpp>
 #include <action_msgs/srv/cancel_goal.hpp>
+#include <chrono>
 
 namespace slg_bt_plugins
 {
@@ -48,7 +49,7 @@ private:
   std::string current_service_name_;
 
   std::shared_future<action_msgs::srv::CancelGoal::Response::SharedPtr> future_;
-  rclcpp::Time request_time_;
+  std::chrono::steady_clock::time_point request_time_;
 };
 
 }  // namespace slg_bt_plugins

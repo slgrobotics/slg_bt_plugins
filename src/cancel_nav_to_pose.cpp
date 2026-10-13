@@ -1,7 +1,6 @@
 #include "slg_bt_plugins/cancel_nav_to_pose.hpp"
 
 #include <chrono>
-#include <cstring>
 
 namespace slg_bt_plugins
 {
@@ -30,51 +29,43 @@ BT::NodeStatus CancelNavToPose::onStart()
   // (Re)create client if first time or action_name changed
   if (!client_ || current_service_name_ != service_name) {
     current_service_name_ = service_name;
-    client_ = node_->create_client<action_msgs::srv::CancelGoal>(current_service_name_);
+    client_ = node_->create_client<action_msgs::srv::CancelGoal>(current_service_name_, true);
     RCLCPP_INFO(node_->get_logger(), "[CancelNavToPose] Using service: %s", current_service_name_.c_str());
   }
 
-  // Don’t hard-block on service availability; keep RUNNING and retry.
-  if (!client_->wait_for_service(std::chrono::milliseconds(1))) {
-    RCLCPP_WARN_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
-      "[CancelNavToPose] Service not ready: %s", current_service_name_.c_str());
-    return BT::NodeStatus::RUNNING;
-  }
-
-  // Equivalent to: ros2 service call ... "{}"
-  // Build request with zero goal_id and zero stamp (cancel all goals).
-  auto req = std::make_shared<action_msgs::srv::CancelGoal::Request>();
-  std::memset(req->goal_info.goal_id.uuid.data(), 0, req->goal_info.goal_id.uuid.size());
-  req->goal_info.stamp.sec = 0;
-  req->goal_info.stamp.nanosec = 0;
-
-  future_ = client_->async_call(req);
-  request_time_ = node_->now();
-
-  RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
-    "[CancelNavToPose] Sent cancel request to %s", current_service_name_.c_str());
-
-  return BT::NodeStatus::RUNNING;
+  future_ = {};
+  request_time_ = std::chrono::steady_clock::now();
+  return onRunning();
 }
 
 BT::NodeStatus CancelNavToPose::onRunning()
 {
   int timeout_ms = 500;
   (void)getInput("timeout_ms", timeout_ms);
-
-  if (!future_.valid()) {
-    // If something weird happened, re-start
-    RCLCPP_WARN(node_->get_logger(), "[CancelNavToPose] Future invalid; restarting");
-    return onStart();
+  if (std::chrono::steady_clock::now() - request_time_ >
+    std::chrono::milliseconds(timeout_ms))
+  {
+    future_ = {};
+    client_.reset();
+    RCLCPP_ERROR(node_->get_logger(), "[CancelNavToPose] Cancellation timed out");
+    return BT::NodeStatus::FAILURE;
   }
 
+  if (!future_.valid()) {
+    if (!client_->wait_for_service(std::chrono::milliseconds(1))) {
+      RCLCPP_WARN_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
+        "[CancelNavToPose] Service not ready: %s", current_service_name_.c_str());
+      return BT::NodeStatus::RUNNING;
+    }
+    auto req = std::make_shared<action_msgs::srv::CancelGoal::Request>();
+    // Zero UUID and timestamp request cancellation of all goals on this server.
+    future_ = client_->async_call(req);
+  }
+
+  // Process only this client's private callback group, including in no-pump trees.
+  (void)client_->spin_until_complete(future_, std::chrono::milliseconds(0));
   // Non-blocking poll
   if (future_.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) {
-    const double elapsed_ms = (node_->now() - request_time_).seconds() * 1000.0;
-    if (elapsed_ms > timeout_ms) {
-      RCLCPP_ERROR(node_->get_logger(), "[CancelNavToPose] Timeout waiting for cancel response");
-      return BT::NodeStatus::FAILURE;
-    }
     return BT::NodeStatus::RUNNING;
   }
 
@@ -98,7 +89,8 @@ BT::NodeStatus CancelNavToPose::onRunning()
 
 void CancelNavToPose::onHalted()
 {
-  // No special cleanup required.
+  future_ = {};
+  client_.reset();
   RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
     "[CancelNavToPose] halted");
 }

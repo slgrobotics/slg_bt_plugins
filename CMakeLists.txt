@@ -31,12 +31,17 @@ add_library(slg_bt_plugins SHARED
 # THIS IS THE KEY LINE TO MAKE THE BT_RegisterNodesFromPlugin SYMBOL VISIBLE
 # see https://chatgpt.com/s/t_6941bc0282808191b0b911baf8efea69
 #
-# Also, this is where you can enaable USE_RCLCPP_SUBSCRIPTIONS
-#       if you want to use rclcpp subscriptions instead of Data Pump in your BT nodes
 target_compile_definitions(slg_bt_plugins
   PRIVATE BT_PLUGIN_EXPORT
-  #USE_RCLCPP_SUBSCRIPTIONS
 )
+
+# you can enaable USE_RCLCPP_SUBSCRIPTIONS
+# if you want to use rclcpp subscriptions instead of Data Pump in your BT nodes
+option(USE_RCLCPP_SUBSCRIPTIONS "Use individual subscriptions instead of blackboard inputs" OFF)
+
+if(USE_RCLCPP_SUBSCRIPTIONS)
+  target_compile_definitions(slg_bt_plugins PUBLIC USE_RCLCPP_SUBSCRIPTIONS)
+endif()
 
 # Enable strict warnings and detect implicit conversions
 target_compile_options(slg_bt_plugins PRIVATE
@@ -79,6 +84,10 @@ install(DIRECTORY include/
   DESTINATION include/
 )
 
+install(DIRECTORY behavior_trees/
+  DESTINATION share/${PROJECT_NAME}/behavior_trees
+)
+
 ament_export_libraries(
   slg_bt_plugins
   slg_bt_plugins
@@ -86,16 +95,26 @@ ament_export_libraries(
 
 if(BUILD_TESTING)
   enable_testing()
+  add_executable(behavior_tree_examples test/behavior_tree_examples.cpp)
+  target_link_libraries(behavior_tree_examples PRIVATE slg_bt_plugins)
+  add_test(NAME behavior_tree_examples
+    COMMAND behavior_tree_examples
+      $<TARGET_FILE:slg_bt_plugins>
+      ${CMAKE_CURRENT_SOURCE_DIR}/behavior_trees
+      ${nav2_behavior_tree_DIR}/../../../lib
+  )
   add_executable(lyrical_blackboard_smoke test/lyrical_blackboard_smoke.cpp)
   target_link_libraries(lyrical_blackboard_smoke PRIVATE
+    ${action_msgs_TARGETS}
     ${nav2_ros_common_TARGETS}
     ${behaviortree_cpp_TARGETS}
   )
   add_test(NAME lyrical_blackboard_smoke
     COMMAND lyrical_blackboard_smoke
       $<TARGET_FILE:slg_bt_plugins>
-      ${CMAKE_CURRENT_SOURCE_DIR}/behavior_trees/minimal_pump.xml
+      ${CMAKE_CURRENT_SOURCE_DIR}/behavior_trees/fgs_data_to_blackboard.xml
   )
+  set_tests_properties(behavior_tree_examples lyrical_blackboard_smoke PROPERTIES TIMEOUT 15)
 endif()
 
 ament_package()

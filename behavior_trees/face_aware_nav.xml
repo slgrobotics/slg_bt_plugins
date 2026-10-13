@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4" main_tree_to_execute="MainTree">
+  <!-- Uses the default data-pump build. Select this as the BT Navigator NavigateToPose tree.
+       STOP cancels the goal; face detection pauses translation and turns. -->
+  <include ros_pkg="nav2_bt_navigator" path="behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml"/>
+  <BehaviorTree ID="MainTree">
+    <ReactiveSequence name="PumpAndNavigate">
+      <FgsTopicToBlackboard
+        topic_name="/bt/face_gesture_detect"
+        is_face_detected="{is_face_detected}"
+        face_yaw_error="{face_yaw_error}"
+        gesture="{gesture}"
+        is_stop_gesture="{is_stop_gesture}"
+        is_like_gesture="{is_like_gesture}"
+        is_ok_gesture="{is_ok_gesture}"
+        is_yes_gesture="{is_yes_gesture}"
+        is_six_gesture="{is_six_gesture}"
+      />
+      <ReactiveFallback name="CancelOrTurnOrNavigate">
+        <!-- Sequence remembers STOP once detected, even if the gesture clears.
+             Retry cancellation without resuming motion. Stay RUNNING after
+             acceptance until the navigator processes its cancellation request. -->
+        <Sequence name="CancelOnStop">
+          <IsStopGesture is_stop_gesture="{is_stop_gesture}"/>
+          <RetryUntilSuccessful num_attempts="-1">
+            <CancelNavToPose action_name="navigate_to_pose" timeout_ms="500"/>
+          </RetryUntilSuccessful>
+          <KeepRunningUntilFailure>
+            <AlwaysSuccess/>
+          </KeepRunningUntilFailure>
+        </Sequence>
+        <!-- Alignment also remains RUNNING so it cannot report goal success.
+             Recheck the face every tick and resume navigation when it disappears. -->
+        <ReactiveSequence name="PauseAndTurnWhileFaceDetected">
+          <IsFaceDetected is_face_detected="{is_face_detected}"/>
+          <KeepRunningUntilFailure>
+            <TurnTowardFace angle_tolerance="0.1" max_turn_rate="0.5" is_face_detected="{is_face_detected}" face_yaw_error="{face_yaw_error}"/>
+          </KeepRunningUntilFailure>
+        </ReactiveSequence>
+        <SubTree ID="NavigateToPoseWReplanningAndRecovery" _autoremap="true"/>
+      </ReactiveFallback>
+    </ReactiveSequence>
+  </BehaviorTree>
+</root>
