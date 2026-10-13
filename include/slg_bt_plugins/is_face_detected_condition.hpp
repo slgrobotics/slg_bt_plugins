@@ -2,6 +2,7 @@
 
 #include "behaviortree_cpp/condition_node.h"
 #include <rclcpp/rclcpp.hpp>
+#include <nav2_ros_common/lifecycle_node.hpp>
 
 // See CMakeLists.txt for USE_RCLCPP_SUBSCRIPTIONS option
 #ifdef USE_RCLCPP_SUBSCRIPTIONS
@@ -44,12 +45,12 @@ static BT::PortsList providedPorts()
   BT::NodeStatus tick() override;
 
 private:
-  rclcpp::Node::SharedPtr node_;
+  nav2::LifecycleNode::SharedPtr node_;
 
 #ifdef USE_RCLCPP_SUBSCRIPTIONS
 
 // Hack: using Illuminance message for combo info, because we need a time-stamped message in BT plugins.
-  rclcpp::Subscription<sensor_msgs::msg::Illuminance>::SharedPtr sub_;
+  nav2::Subscription<sensor_msgs::msg::Illuminance>::SharedPtr sub_;
 
   std::mutex mutex_;
   bool face_detected_{false};

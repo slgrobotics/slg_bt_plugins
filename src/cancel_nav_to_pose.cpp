@@ -35,8 +35,7 @@ BT::NodeStatus CancelNavToPose::onStart()
   }
 
   // Don’t hard-block on service availability; keep RUNNING and retry.
-  if (!client_->service_is_ready()) {
-    (void)client_->wait_for_service(std::chrono::milliseconds(1));
+  if (!client_->wait_for_service(std::chrono::milliseconds(1))) {
     RCLCPP_WARN_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,
       "[CancelNavToPose] Service not ready: %s", current_service_name_.c_str());
     return BT::NodeStatus::RUNNING;
@@ -49,7 +48,7 @@ BT::NodeStatus CancelNavToPose::onStart()
   req->goal_info.stamp.sec = 0;
   req->goal_info.stamp.nanosec = 0;
 
-  future_ = client_->async_send_request(req).future.share();
+  future_ = client_->async_call(req);
   request_time_ = node_->now();
 
   RCLCPP_INFO_THROTTLE(node_->get_logger(), *node_->get_clock(), 2000,

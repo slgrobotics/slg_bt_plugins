@@ -6,6 +6,11 @@ Currently works with [DFRobot AI Gesture and Face Detection Sensor package](http
 
 Please refer to [main project Wiki](https://github.com/slgrobotics/articubot_one/wiki/Behavior-Tree-for-Gesture-and-Face-Detection-Sensor) (*Seggy* robot)
 
+> **Note:** changes made to work under Lyrical:
+> - Changed the blackboard node type to nav2::LifecycleNode::SharedPtr.
+> - Updated ROS factories and dependencies.
+> - Added a regression test covering all 13 plugin constructors and a perception-pump tick.
+
 ---------------------
 
 ## BT Nodes for DFRobot *AI Gesture and Face Detection Sensor*
@@ -19,6 +24,15 @@ to ensure the robot reverts to its default navigation state instead of "freezing
 **Data Pump vs. Topic subscriptions** There is a "USE_RCLCPP_SUBSCRIPTIONS" compile condition in CMakeLists.txt, off by default:
 - When defined, all BT plugins subscribe individually to the */bt/face_gesture_detect* topic and process data internally (not recommended).
 - When not defined, a single *FgsTopicToBlackboard* node is responsible for subscription and data preprocessing. It puts all data on the BT Blackboard. This simplifies code for other plugins.
+
+### ROS 2 Lyrical
+
+This version uses `nav2_ros_common` and expects `nav2::LifecycleNode::SharedPtr`
+in the BT blackboard entry `node`, matching Lyrical Nav2. Custom test runners
+must also use this type and configure/activate the node before ticking trees
+that publish velocity commands. The node factories use Nav2 publishers,
+subscriptions, and service clients. This version requires Lyrical; the previous
+`rclcpp::Node::SharedPtr` blackboard interface used with Jazzy is incompatible.
 
 ### Sample behavior trees
 

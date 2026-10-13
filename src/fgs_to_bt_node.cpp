@@ -30,7 +30,7 @@ FgsTopicToBlackboard::FgsTopicToBlackboard(const std::string & name,
   qos.best_effort().durability_volatile();
 
   sub_ = node_->create_subscription<sensor_msgs::msg::Illuminance>(
-    topic_name_, qos, std::bind(&FgsTopicToBlackboard::callbackFgsPerceptionAdapterMessage, this, _1));
+    topic_name_, std::bind(&FgsTopicToBlackboard::callbackFgsPerceptionAdapterMessage, this, _1), qos);
 }
 
 void

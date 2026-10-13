@@ -3,6 +3,7 @@ project(slg_bt_plugins)
 
 find_package(ament_cmake REQUIRED)
 find_package(nav2_behavior_tree REQUIRED)
+find_package(nav2_ros_common REQUIRED)
 find_package(behaviortree_cpp REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -50,6 +51,7 @@ target_compile_options(slg_bt_plugins PRIVATE
 
 target_link_libraries(slg_bt_plugins PUBLIC
   ${nav2_behavior_tree_TARGETS}
+  ${nav2_ros_common_TARGETS}
   ${behaviortree_cpp_TARGETS}
   ${pluginlib_TARGETS}
   ${sensor_msgs_TARGETS}
@@ -81,5 +83,19 @@ ament_export_libraries(
   slg_bt_plugins
   slg_bt_plugins
 )
+
+if(BUILD_TESTING)
+  enable_testing()
+  add_executable(lyrical_blackboard_smoke test/lyrical_blackboard_smoke.cpp)
+  target_link_libraries(lyrical_blackboard_smoke PRIVATE
+    ${nav2_ros_common_TARGETS}
+    ${behaviortree_cpp_TARGETS}
+  )
+  add_test(NAME lyrical_blackboard_smoke
+    COMMAND lyrical_blackboard_smoke
+      $<TARGET_FILE:slg_bt_plugins>
+      ${CMAKE_CURRENT_SOURCE_DIR}/behavior_trees/minimal_pump.xml
+  )
+endif()
 
 ament_package()

@@ -2,6 +2,7 @@
 
 #include "behaviortree_cpp/action_node.h"
 #include <rclcpp/rclcpp.hpp>
+#include <nav2_ros_common/lifecycle_node.hpp>
 
 namespace slg_bt_plugins
 {
@@ -56,7 +57,7 @@ static BT::PortsList providedPorts()
   BT::NodeStatus tick() override;
 
 private:
-  rclcpp::Node::SharedPtr node_;
+  nav2::LifecycleNode::SharedPtr node_;
 
 };
 

@@ -21,7 +21,6 @@ TurnTowardFace::TurnTowardFace(
 #ifdef USE_RCLCPP_SUBSCRIPTIONS
   yaw_error_sub_ = node_->create_subscription<sensor_msgs::msg::Illuminance>(
     "/bt/face_gesture_detect",
-    rclcpp::QoS(rclcpp::KeepLast(1)).best_effort().durability_volatile(),
     // Note: the Lambda callback will be called when BT node is spun and only then the messages will be received, including the queued stale ones
     [this](sensor_msgs::msg::Illuminance::SharedPtr msg) {
         // while face is detected, expect steady 2 Hz stream of messages.
@@ -29,12 +28,12 @@ TurnTowardFace::TurnTowardFace(
         std::lock_guard<std::mutex> lock(mutex_);
         face_yaw_error_ = (float)msg->variance; // using variance field for yaw error
         last_yaw_error_time_ = rclcpp::Time(msg->header.stamp, node_->get_clock()->get_clock_type()); // time when the message was sent
-    });
+    }, rclcpp::QoS(rclcpp::KeepLast(1)).best_effort().durability_volatile());
 #endif // USE_RCLCPP_SUBSCRIPTIONS
 
   cmd_vel_pub_ =
     node_->create_publisher<geometry_msgs::msg::TwistStamped>(
-      "/cmd_vel", rclcpp::SystemDefaultsQoS());
+      "/cmd_vel", nav2::qos::StandardTopicQoS());
 }
 
 BT::NodeStatus TurnTowardFace::onStart()

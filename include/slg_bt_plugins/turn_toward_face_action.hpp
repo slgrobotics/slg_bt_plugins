@@ -2,6 +2,7 @@
 
 #include "behaviortree_cpp/action_node.h"
 #include <rclcpp/rclcpp.hpp>
+#include <nav2_ros_common/lifecycle_node.hpp>
 
 // See CMakeLists.txt for USE_RCLCPP_SUBSCRIPTIONS option
 #ifdef USE_RCLCPP_SUBSCRIPTIONS
@@ -53,12 +54,12 @@ public:
   void onHalted() override;
 
 private:
-  rclcpp::Node::SharedPtr node_;
-  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr cmd_vel_pub_;
+  nav2::LifecycleNode::SharedPtr node_;
+  nav2::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr cmd_vel_pub_;
 
 #ifdef USE_RCLCPP_SUBSCRIPTIONS
   // Hack: using Illuminance message for combo info, because we need a time-stamped message in BT plugins.
-  rclcpp::Subscription<sensor_msgs::msg::Illuminance>::SharedPtr yaw_error_sub_;
+  nav2::Subscription<sensor_msgs::msg::Illuminance>::SharedPtr yaw_error_sub_;
 
 
   std::mutex mutex_;

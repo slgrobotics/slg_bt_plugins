@@ -2,6 +2,7 @@
 
 #include <behaviortree_cpp/condition_node.h>
 #include <rclcpp/rclcpp.hpp>
+#include <nav2_ros_common/lifecycle_node.hpp>
 #include <string>
 
 namespace slg_bt_plugins
@@ -48,7 +49,7 @@ public:
   BT::NodeStatus tick() override;
 
 private:
-  rclcpp::Node::SharedPtr node_;
+  nav2::LifecycleNode::SharedPtr node_;
 };
 
 }  // namespace slg_bt_plugins

@@ -21,7 +21,6 @@ IsStopGesture::IsStopGesture(const std::string & name,
 
   sub_ = node_->create_subscription<sensor_msgs::msg::Illuminance>(
         "/bt/face_gesture_detect",
-        rclcpp::QoS(rclcpp::KeepLast(1)).best_effort().durability_volatile(),
         // Note: the Lambda callback will be called when BT node is spun and only then the messages will be received, including the queued stale ones
         [this](sensor_msgs::msg::Illuminance::SharedPtr msg) {
             // when a gesture is detected, expect steady 2 Hz stream of messages
@@ -29,7 +28,7 @@ IsStopGesture::IsStopGesture(const std::string & name,
             std::lock_guard<std::mutex> lock(mutex_);
             last_gesture_ = msg->header.frame_id;   // using frame_id field for gesture string
             last_gesture_time_ = rclcpp::Time(msg->header.stamp, node_->get_clock()->get_clock_type()); // time when the message was sent
-        }
+        }, rclcpp::QoS(rclcpp::KeepLast(1)).best_effort().durability_volatile()
     );
 #endif // USE_RCLCPP_SUBSCRIPTIONS
 }

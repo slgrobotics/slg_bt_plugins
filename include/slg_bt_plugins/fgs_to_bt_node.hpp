@@ -5,6 +5,7 @@
 
 #include "behaviortree_cpp/action_node.h"
 #include <rclcpp/rclcpp.hpp>
+#include <nav2_ros_common/lifecycle_node.hpp>
 #include <sensor_msgs/msg/illuminance.hpp>
 
 namespace slg_bt_plugins
@@ -81,9 +82,9 @@ private:
   void callbackFgsPerceptionAdapterMessage(const sensor_msgs::msg::Illuminance::SharedPtr msg);
 
   // Hack: using Illuminance message for combo info, because we need a time-stamped message in BT plugins.
-  rclcpp::Subscription<sensor_msgs::msg::Illuminance>::SharedPtr sub_;
+  nav2::Subscription<sensor_msgs::msg::Illuminance>::SharedPtr sub_;
 
-  rclcpp::Node::SharedPtr node_;
+  nav2::LifecycleNode::SharedPtr node_;
 
   std::string topic_name_;
 

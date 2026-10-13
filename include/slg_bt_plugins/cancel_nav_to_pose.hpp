@@ -2,6 +2,7 @@
 
 #include <behaviortree_cpp/action_node.h>
 #include <rclcpp/rclcpp.hpp>
+#include <nav2_ros_common/lifecycle_node.hpp>
 #include <action_msgs/srv/cancel_goal.hpp>
 
 namespace slg_bt_plugins
@@ -41,9 +42,9 @@ private:
     return action_name + "/_action/cancel_goal";
   }
 
-  rclcpp::Node::SharedPtr node_;
+  nav2::LifecycleNode::SharedPtr node_;
 
-  rclcpp::Client<action_msgs::srv::CancelGoal>::SharedPtr client_;
+  nav2::ServiceClient<action_msgs::srv::CancelGoal>::SharedPtr client_;
   std::string current_service_name_;
 
   std::shared_future<action_msgs::srv::CancelGoal::Response::SharedPtr> future_;

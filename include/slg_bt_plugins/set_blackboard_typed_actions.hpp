@@ -2,6 +2,7 @@
 
 #include <behaviortree_cpp/action_node.h>
 #include <rclcpp/rclcpp.hpp>
+#include <nav2_ros_common/lifecycle_node.hpp>
 #include <string>
 
 /**
@@ -46,7 +47,7 @@ public:
   BT::NodeStatus tick() override;
 
 private:
-  rclcpp::Node::SharedPtr node_;
+  nav2::LifecycleNode::SharedPtr node_;
 };
 
 /**
@@ -81,7 +82,7 @@ public:
   BT::NodeStatus tick() override;
 
 private:
-  rclcpp::Node::SharedPtr node_;
+  nav2::LifecycleNode::SharedPtr node_;
 };
 
 /**
@@ -116,7 +117,7 @@ public:
   BT::NodeStatus tick() override;
 
 private:
-  rclcpp::Node::SharedPtr node_;
+  nav2::LifecycleNode::SharedPtr node_;
 };
 
 }  // namespace slg_bt_plugins
